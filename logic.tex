@@ -16,15 +16,15 @@ logical connectives and quantifiers over LF terms.
 Quantification would need to be allowed not only over term variables
 but also over variables representing LF contexts. 
 
-To develop an actual logic based on these ideas, we must describe a
-more precise correspondence between LF typing judgements and atomic
+One issue that requires a more precise consideration is the
+correspondence between LF typing judgements and atomic
 formulas. 
 %
 The judgement forms that must considered in this context 
 are $\lfchecktype{\Gamma}{M}{A}$ and $\lfsynthtype{\Gamma}{R}{A}$.
 %
-The main judgement form is in fact the first one and, as we have just
-noted, Theorem~\ref{th:atomictype} allows us to identify a special
+The main judgement form is in fact the first one and
+Theorem~\ref{th:atomictype} allows us to identify a special
 ``focused'' typing rule that obviates the second judgement form. 
 %
 Judgement of the first kind in LF assume the wellformedness of the
@@ -38,7 +38,7 @@ $\Gamma$ and $A$ into the interpretation of the encoding of the
 judgement. 
 %
 There is, however, an aspect of the wellformedness checking that we
-would like to extract into a static pre-processing phase.
+will extract into a static pre-processing phase.
 %
 The LF typing rules combine the checking of canonicity of terms with
 the determination of inhabitation that relies on the semantically more
@@ -59,7 +59,7 @@ These variables may appear free in the terms and types in the atomic
 formula.
 %
 However, their interpretation in this context must be different from
-the variables that are bound by quantifiers: in particular, these
+that of the variables that are bound by quantifiers: in particular, these
 variables cannot be instantiated and each of them must be treated as
 being distinct within the atomic formula. 
 %
@@ -74,9 +74,8 @@ context quantifier.
 To support this ability, we will allow context variables to appear in
 these expressions.
 %
-However, as observed in Section~\ref{ssec:informal-reasoning}, we
-would like to be able to restrict the instantiation of such variables
-to blocks of declarations adhering to specified forms.
+However, we would like to be able to restrict the instantiation of
+such variables to blocks of declarations adhering to specified forms.
 %
 To impose such constraints, the logic will permit context variables to
 be typed by \emph{context schemas} that are motivated by regular world
@@ -86,15 +85,15 @@ system~\cite{Pfenning02guide,schurmann00phd}.
 In the rest of this section, we present the logic \logic\ that
 substantiates the ideas outlined above.
 %
-The first two subsections present the well-formed formulas of \logic and
+The first two subsections present the well-formed formulas of \logic\ and
 identify their intended meaning. 
 %
-The end result of this discussion is a means for describing properties
-of a specification given by an LF signature and for assessing the
-validity of such properties.
+%% The end result of this discussion is a means for describing properties
+%% of a specification given by an LF signature and for assessing the
+%% validity of such properties.
 %
-The third subsection illuminates this capability through a
-collection of examples.
+The third subsection illustrates the capability this logic provides
+for describing properties of an LF specification. 
 %% %
 %% The last subsection observes the counterpart in \logic\ of the
 %% property of irrelevance of the particular names that are chosen for
@@ -116,7 +115,7 @@ $y$ to represent term-level variables.
 We also use $n$ to represent a special category of symbols called the
 nominal constants.
 %
-LF terms and types are obviously a subset of the expressions presented
+LF terms and types are a subset of the expressions presented
 here.
 %
 Going the other way, there are two main additions to the LF
@@ -143,18 +142,16 @@ quantifiers.
 \end{figure}
 
 The logic \logic\ is parameterized by a signature $\Sigma$
-that assigns kinds to type-level constants and types to term-level
-ones and that is well-formed in the sense described in
-Section~\ref{sec:lf}.
+that is well-formed in the sense described in Section~\ref{sec:lf}.
 %
 The logic also assumes as given a set $\noms$ of nominal constants,
 each specified with an arity type, with a countably infinite supply of
 such constants for each arity type $\alpha$.
 %
-Since the types of the nominal constants are fixed once and for all by
-$\noms$, we may treat sets of such constants ambiguously as
-collections whose elements are of the form $n : \alpha$ or simply
-$n$. 
+%% Since the types of the nominal constants are fixed once and for all by
+%% $\noms$, we may treat sets of such constants ambiguously as
+%% collections whose elements are of the form $n : \alpha$ or simply
+%% $n$. 
 %
 
 \begin{figure}[tbhp]
@@ -546,9 +543,8 @@ arity types: in combination with  the constants in $\STLCGamma_0$,
 these collections, circumscribe the symbols that can be used in the
 declarations in the context expressions.\footnote{In 
   the use of this relation in this paper, $\mathbb{N}$ will
-  be $\noms$ and $\Psi$ will be the empty set. The more general form
-  for this relation, which includes a parameterization by these sets,
-  is needed in the development of the proof system
+  be $\noms$ and $\Psi$ will be the empty set. The parameterization of
+  this relation by these sets is needed in the development of the proof system
   in~\cite{nadathur21arxiv}. We retain that form for consistency.} 
 The relation is written as $\csinst{\mathbb{N}}{\Psi}{\mathcal{C}}{G}$
 and it is defined by the rules in Figure~\ref{fig:ctx-schema}.
@@ -644,9 +640,9 @@ Context variables substitutions have the form
 $\{G_1/\Gamma_1,\ldots,G_n/\Gamma_n\}$ where, for $1 \leq i \leq n$,
 $\Gamma_i$ is a context variable and $G_i$ is a context expression. 
 %
-If $\sigma$ is such a substitution, we will write $\domain{\sigma}$ to
-denote the set $\{\Gamma_1,\ldots,\Gamma_n\}$.
-%
+%% If $\sigma$ is such a substitution, we will write $\domain{\sigma}$ to
+%% denote the set $\{\Gamma_1,\ldots,\Gamma_n\}$.
+%% %
 Further, the application of $\sigma$ to a formula
 $F$, which is denoted by $\subst{\sigma}{F}$, will correspond to the 
 replacement of the free occurrences of the variables
