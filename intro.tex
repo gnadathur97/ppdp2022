@@ -1,0 +1,130 @@
+\section{Introduction}\label{sec:intro}
+
+The Edinburgh Logical Framework, popularly referred to as LF, is a
+typed lambda calculus in which types are permitted to depend on
+terms. 
+%
+This dependency allows types to be used to encode relations between 
+$\lambda$-terms, which have been argued to be good devices for
+representing syntactic objects with binding
+structure~\cite{miller87slp,pfenning88pldi}. 
+%
+Inhabitation of types, the content of typing judgements,
+provides witnesses in this context to the validity of relevant
+relations. 
+%
+Thus, LF constitutes an embodiment of the judgements-as-types principle
+and it has been exploited in this capacity in the formalization of
+rule-based presentations of varied object systems.
+
+This paper is motivated by the overall goal of developing a framework
+for stating and proving properties of formal specifications that are
+constructed using LF.
+%
+Such a framework would provide a formal counterpart to the
+informal style of reasoning about object systems based on their
+rule-based description as is seen, for example, in \cite{pierce02book}.
+%
+Assuming a formalization using LF, a key part of such a framework
+would be a logic that allows for the expression of complex properties
+concerning LF typing judgements. 
+%
+Complementing such a logic, it would also be necessary to describe a
+proof system that supports the mechanization of reasoning in the
+logic, an aspect that would need to internalize case analysis and
+induction over LF typing judgements. 
+
+We deliver on the first of these requirements in this paper.
+%
+Specifically, we describe a logic, which we call \logic, in which
+properties of LF specifications can be formally stated.
+%
+The logic is parameterized by an LF signature that describes the
+particular object system that is of interest.
+%
+The atomic formulas in the logic then comprise typing judgements that
+assert the inhabitation of types relative to LF contexts.
+%
+Complex formulas can be constructed from these judgements using a
+collection of propositional constants and connectives and
+quantifiers.
+%
+The quantification that is permitted ranges over expressions that
+denote both LF terms and LF contexts.
+%
+A critical issue that must be addressed in this context is the
+qualification of quantifiers to limit their scope to meaningful
+subclasses of expressions.
+%
+For term quantifiers, we address this issue by using a special class
+of simple types that we call \emph{arity types}.
+%
+Such a type limits attention to terms that satisfy a particular functional
+structure, leaving deeper, dependency related properties to the domain
+of the formula that the quantifier ranges over.
+%
+For context quantifiers, we introduce a new kind of types that we call
+\emph{context schemas}.
+%
+These types, which are motivated by the \emph{regular worlds} used
+with Twelf developments~\cite{Pfenning02guide,schurmann00phd},
+identify patterns of declarations out of which the actual contexts
+that instantiate the quantifiers must be constructed.
+%
+The validity of atomic formulas that are devoid of free variables is
+determined, as might be expected, by the derivability of the LF
+judgements that they represent.
+%
+Propositional symbols are understood in the usual manner.
+%
+An especially interesting part of the semantics is the treatment of
+quantifiers: these are interpreted via the substitution of expressions
+that adhere to the type qualifications that adorn them.
+
+We have also developed a proof system that provides the basis
+for mechanizing reasoning relative to \logic. 
+%
+This proof system is oriented around sequents that intuitively
+encapsulate states in the development of a proof.
+%
+The truly innovative part of the system is its treatment of atomic
+formulas that embodies their interpretation as typing judgements in LF.
+%
+Included in this part is a mechanism for analyzing
+an atomic assumption formula via the parameterizing signature and the
+declarations in the LF context that is a part of the formula.
+%
+The rules also build in the capability to reason by induction on the
+heights of LF derivations and to utilize meta-theorems about LF
+derivability.
+%
+While the detailed presentation of this proof system is beyond the scope of
+this paper, we provide a sketch of it for the sake of completeness. 
+%
+A complete development may be found in \cite{nadathur21arxiv,southern21phd}.
+%
+We also note that an implementation of the framework is available in
+the Adelfa system \cite{adelfa.website,southern21lfmtp}.
+
+The rest of the paper is organized as follows.
+%
+In the next section, we present the version of LF that is the basis of
+this work, illustrate its use in formalizing object systems and
+identify the kinds of properties that we might want to represent
+relative to such formalizations. 
+%
+We also introduce here the notion of  \emph{simultaneous
+hereditary substitution} that generalizes ideas in~\cite{harper07jfp}
+and that plays a significant role in the development of our logic. 
+%
+Section~\ref{sec:logic} then presents the logic \logic\ and illustrates
+its use in formally describing properties of LF specifications. 
+%
+Section~\ref{sec:proofsystem} sketches a proof system that provides
+the means for mechanizing reasoning relative to the logic. 
+%
+Section~\ref{sec:examples} provides a hint of how such a proof system
+might work in the formalization of arguments of validity. 
+%
+We conclude the paper with a brief discussion of other work related to
+this topic. 

@@ -1,0 +1,22 @@
+A logic is presented for reasoning about specifications encoded in the Edinburgh Logical Framework or LF. In this logic, typing judgments in LF serve as atomic formulas and quantification is permitted over LF terms and LF contexts. Quantifiers of the first variety are qualified by simple types that describe the functional structure associated with the variables they bind. Quantifiers over contexts are typed by context schemas that constrain their instantiations to adhere to a regular structure. The semantics of the logic is based ultimately on an understanding of derivability in LF. As such, valid formulas in the logic represent meta-theoretic properties of object systems that are encoded via LF signatures. The logic is complemented by a collection of proof rules that are sound with respect to the semantics. These rules come in two forms. One collection of rules captures the meanings of logical connectives and quantifiers. Another collection provides a means for analyzing atomic formulas based on an understanding of derivability in LF; these rules build in the capability for a case-analysis style reasoning about LF judgements and for induction over the heights of LF derivations. The logic has been implemented in the Adelfa proof assistant.
+
+
+A logic is presented for reasoning about specifications encoded in the
+Edinburgh Logical Framework or LF. In this logic, typing judgments in
+LF serve as atomic formulas and quantification is permitted over LF
+terms and LF contexts. Quantifiers of the first variety are qualified
+by simple types that describe the functional structure associated with
+the variables they bind. Quantifiers over contexts are typed by
+context schemas that constrain their instantiations to adhere to a
+regular structure. The semantics of the logic is based ultimately on
+an understanding of derivability in LF. As such, valid formulas in the
+logic represent meta-theoretic properties of object systems that are
+encoded via LF signatures. The logic is complemented by a collection
+of proof rules that are sound with respect to the semantics. These
+rules come in two forms. One collection of rules captures the meanings
+of logical connectives and quantifiers. Another collection provides
+a means for analyzing atomic formulas based on an understanding of
+derivability in LF; these rules build in the capability for a
+case-analysis style reasoning about LF judgements and for induction
+over the heights of LF derivations. The logic has been implemented in
+the Adelfa proof assistant.

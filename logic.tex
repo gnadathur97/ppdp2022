@@ -1,0 +1,1176 @@
+\section{A Logic for Expressing Properties of LF Specifications}
+\label{sec:logic}
+
+The discussions in Section~\ref{ssec:informal-reasoning} suggest a 
+possible structure for a logic for stating properties of an object
+system that has been described using LF. 
+%
+The logic would be parameterized by a well-formed LF signature.
+%
+The basic building blocks for the properties that are to be described
+would be typing judgements.
+%
+More specifically, the logic would use such judgements as its atomic
+formulas and would interpret them using LF derivability.
+%
+More complex formulas would then be constructed using 
+logical connectives and quantifiers over LF terms.
+%
+As the example in Section~\ref{ssec:informal-reasoning} illustrates,
+it would be necessary to also permit a quantification over LF contexts.
+
+To develop an actual logic based on these ideas, we need to describe a
+more precise correspondence between LF typing judgements and atomic
+formulas. 
+%
+The judgement forms that need to be considered in this context are
+those for typing canonical and atomic terms, \ie, the
+$\lfchecktype{\Gamma}{M}{A}$ and $\lfsynthtype{\Gamma}{R}{A}$ forms. 
+%
+The main judgement form is in fact the first one: the second form
+serves mainly to explicate judgements of the first kind when the type
+is atomic and, as we have noted already, Theorem~\ref{th:atomictype}
+provides the basis for circumventing such an explicit treatment
+through a special ``focused'' typing rule. 
+%
+In light of this, it suffices to describe an encoding of only the
+first judgement form.
+%
+The judgement in the LF setting assumes the wellformedness of the
+context $\Gamma$ and the type $A$.
+%
+In the logic, the context and, therefore, also the type can be
+dynamically determined by instantiations for context variables.
+%
+To deal with this situation, we will build the wellformedness of
+$\Gamma$ and $A$ into the interpretation of the encoding of the
+judgement. 
+%
+There is, however, an aspect of the wellformedness checking that we
+would like to extract into a static pre-processing phase.
+%
+The LF typing rules combine the checking of canonicity of terms with
+the determination of inhabitation that relies on the semantically more
+meaningful aspect of dependencies in types.
+%
+To allow the focus in the logic to be on the latter aspect, we will
+build the former into a wellformedness criterion for formulas using
+arity types.
+
+Another aspect that needs further consideration is the representation of
+LF contexts in atomic formulas.
+%
+To support typing derivations that use the
+\canontermlam\ rule, this representation must allow for the explicit
+association of types with variables.
+%
+These variables may appear free in the terms and types in the atomic
+formula.
+%
+However, their interpretation in this context must be different from
+the variables that are bound by quantifiers: in particular, these
+variables cannot be instantiated and each of them must be treated as
+being distinct within the atomic formula. 
+%
+The necessary treatment of these variables can be realized by
+representing them by \emph{nominal constants} in the style of
+\cite{gacek11ic,tiu06lfmtp}.
+%
+Context expressions must, in addition, allow for an unspecified part
+whose exact extent is to be determined by instantiation of an external
+context quantifier.
+%
+To support this ability, we will allow context variables to appear in
+these expressions.
+%
+However, as observed in Section~\ref{ssec:informal-reasoning}, we
+would like to be able to restrict the instantiation of such variables
+to blocks of declarations adhering to specified forms.
+%
+To impose such constraints, the logic will permit context variables to
+be typed by \emph{context schemas} that are motivated by regular world
+descriptions used in the Twelf
+system~\cite{Pfenning02guide,schurmann00phd}. 
+
+In the rest of this section, we present a logic called \logic\ that
+substantiates the ideas outlined above.
+%
+The first two subsections present the well-formed formulas of \logic and
+identify their intended meaning. 
+%
+The end result of this discussion is a means for describing properties
+of a specification given by an LF signature and for assessing the
+validity of such properties.
+%
+The third subsection illuminates this capability through a
+collection of examples.
+%
+The last subsection observes the counterpart in \logic\ of the
+property of irrelevance of the particular names that are chosen for
+the variables bound by the context in an LF judgement.
+%
+The particular expression of this property takes the form of the
+invariance of validity of formulas under permutations of
+nominal constants. 
+
+\subsection{The Formulas of the Logic}
+
+We begin by considering the representation of LF terms and types in \logic.
+%
+Figure~\ref{fig:logic-terms-and-types} presents the syntax of these
+expressions.
+%
+As with LF syntax, we use $c$ and $d$ to represent term level
+constants, $a$ and $b$ to represent type level constants and $x$ and
+$y$ to represent term-level variables.
+%
+We also use $n$ to represent a special category of symbols called the
+nominal constants.
+%
+LF terms and types are obviously a subset of the expressions presented
+here.
+%
+Going the other way, there are two main additions to the LF
+counterparts in the collection of expressions described here.
+%
+First, nominal constants may be used in constructing terms.
+%
+Second, as we shall soon see, variables may be bound not only by
+term and type level abstractions but also by formula level
+quantifiers.
+
+\begin{figure}[tbhp]
+\[
+\begin{array}{r r c l}
+  \mbox{\bf Terms} & M,N & ::= & R\ |\ \lflam{x}{M}\\
+  \mbox{\bf Atomic Terms} & R & ::= & c\ |\ x\ |\ n\ |\ R\app M\\[5pt]
+  \mbox{\bf Types} & A & ::= &
+           P\ |\ \typedpi{x}{A_1}{A_2}\\
+  \mbox{\bf Atomic Types} & P & ::= & a\ |\ P\app M\\[5pt]
+\end{array}
+\]
+\caption{Terms and Types in \logic}
+\label{fig:logic-terms-and-types}
+\end{figure}
+
+The logic \logic\ is parameterized by an LF style signature $\Sigma$
+that assigns kinds to type-level constants and types to term-level ones.
+%
+This signature is assumed to be well-formed in the sense described in
+Section~\ref{sec:lf}.
+%
+The logic also assumes as given a set $\noms$ of nominal constants,
+each specified with an arity type, with a countably infinite supply of
+such constants for each arity type $\alpha$.
+%
+The types of the nominal constants are fixed once and for all by
+$\noms$.
+%
+This allows us to treat sets of such constants ambiguously as
+collections whose elements are of the form $n : \alpha$ or simply
+$n$. 
+%
+
+\begin{figure}[tbhp]
+
+\begin{center}
+\begin{tabular}{c}
+
+\infer{\akindingp{\STLCGamma}{a}{K}}
+      {a:K \in \Sigma}
+
+%\qquad\qquad
+\\[10pt]      
+
+\infer{\akindingp{\STLCGamma}{P\app M}{K}}
+      {\akindingp{\STLCGamma}{P}{\typedpi{x}{A}{K}} \qquad
+       \stlctyjudg{\STLCGamma}{M}{\erase{A}}}
+
+\\[10pt]
+
+\infer{\wftype{\STLCGamma}{P}}
+      {\akindingp{\STLCGamma}{P}{\type}}
+
+%\qquad\qquad
+\\[10pt]      
+
+\infer{\wftype{\STLCGamma}{\typedpi{x}{A_1}{A_2}}} 
+      {\wftype{\STLCGamma}{A_1} \qquad \wftype{\aritysum{\{x :
+            \erase{A_1} \}}{\STLCGamma}}{A_2}}
+\end{tabular}
+\end{center}
+
+\caption{Arity Kinding for Canonical Types}
+\label{fig:arity-kinding}
+\end{figure}
+
+As explained earlier, expressions in \logic\ will be expected to
+satisfy typing constraints that check for canonicity.
+%
+At the term level, these constraints will be realized through arity
+typing relative to a suitable arity context.
+%
+At the type level, we must additionally ensure that (type) constants
+have been supplied with an adequate number of arguments.
+%
+We make these notions precise below; we assume the obvious extension
+of erasure to types in \logic\ here and elsewhere.
+%
+\begin{definition}
+The typing relation between an arity context, a term and an arity type
+that is described in Definition~\ref{def:aritytyping} is extended to
+the present context by permitting terms to contain nominal constants
+and by allowing arity contexts to contain assignments to such
+constants.
+%
+The rules in Figure~\ref{fig:arity-kinding} define an arity kinding
+property denoted by $\wftype{\STLCGamma}{A}$ for a type $A$ relative to
+an arity context $\STLCGamma$.
+%
+In these rules, $\Sigma$ is the signature parameterizing \logic.
+%
+We will often need to refer to the arity context induced by $\Sigma$.
+%
+We call this the \emph{initial constant context} and we reserve the symbol
+$\STLCGamma_0$ to denote it.
+\end{definition}
+
+Hereditary substitution extends naturally to the terms and types in
+\logic\ by treating nominal constants like other constants.
+%
+The following theorem relating to such substitutions has an obvious
+proof.  
+
+\begin{theorem}\label{th:aritysubs-ty}
+If $\theta$ is type preserving with respect to $\STLCGamma$ and
+$\wftype{\aritysum{\context{\theta}}{\STLCGamma}}{A}$ and
+$\hsub{\theta}{A}{A'}$ have derivations, then
+$\wftype{\STLCGamma}{A'}$ has a derivation.
+\end{theorem}
+
+\begin{figure}[tbhp]
+  \[\begin{array}{rrcl}
+\mbox{\bf Block Declarations} & \Delta & ::= & \emptybb\ \vert\ \Delta, y : A \\
+\mbox{\bf Block Schema}   & \mathcal{B} & ::= & \{x_1:\alpha_1,\ldots, x_n:\alpha_n\}\Delta\\
+\mbox{\bf Context Schema} & \mathcal{C} & ::= & \emptycs\ \vert\ \mathcal{C}, \mathcal{B}
+\end{array}\]
+\caption{Block Schemas and Context Schemas}
+\label{fig:context-schemas}
+\end{figure}
+
+The logic allows for quantifiers over LF contexts.
+%
+In the intended interpretation, such quantifiers are meant to be
+instantiated with context expressions that assign LF types to nominal
+constants. 
+%
+However, it will be necessary to be able to constrain the possible
+instantiations in real applications.
+%
+This ability is supported by typing
+context quantifiers using \emph{context schemas} whose structure is
+presented in Figure~\ref{fig:context-schemas}.
+%
+In essence, a context schema comprises a collection of \emph{block
+  schemas}.
+%
+A block schema consists of a header of variables annotated with
+arity types and a body of declarations associating types with
+variables. 
+%
+Each variable in the header and that is assigned a type in the body of
+a block schema is required to be distinct. 
+%
+A block is intended to serve as a template for generating a sequence
+of bindings for nominal constants through an instantiation process
+that will be made clear in the next subsection.
+%
+A context expression corresponding to a context schema is to be obtained
+by some number of instantiations of its block schemas.
+%
+Block and context schemas are required to satisfy typing constraints
+towards ensuring that the context expressions generated from them will
+be well-formed in the manner required by the logic.
+%
+These constraints are represented by the typing judgements
+$\abstyping{\mathcal{B}}$ and $\acstyping{\mathcal{C}}$, respectively,
+that are defined by the rules in Figure~\ref{fig:schematyping}.
+
+\begin{figure*}[tbhp]
+
+\begin{center}
+\begin{tabular}{c}
+
+\infer{\wfdecls{\STLCGamma}{\emptybb}{\STLCGamma}}{}
+
+\qquad\qquad
+
+\infer{\wfdecls{\STLCGamma}{\Delta, y:A}{\STLCGamma' \cup \{y:\erase{A}\}}} 
+      {\wfdecls{\STLCGamma}{\Delta}{\STLCGamma'} \qquad 
+       y\ \mbox{\rm is not assigned by}\ \STLCGamma' \qquad
+       \wftype{\STLCGamma'}{A}}
+
+\\[15pt]
+
+\infer{\abstyping{\{x_1:\alpha_1,\ldots, x_n:\alpha_n\}\Delta}}
+      {x_1,\ldots,x_n\ \mbox{\rm are distinct variables}
+       \qquad
+       \wfdecls{\STLCGamma_0 \cup \{x_1 : \alpha_1, \ldots,
+                                    x_n : \alpha_n\}}
+               {\Delta}
+               {\STLCGamma'}}
+
+\\[15pt]
+
+\infer{\acstyping{\emptycs}}{}
+
+\qquad
+
+\infer{\acstyping{\mathcal{C},\mathcal{B}}}
+      {\acstyping{\mathcal{C}} \qquad \abstyping{\mathcal{B}}}
+
+\end{tabular}
+\end{center}
+\caption{Wellformedness Judgements for Block and Context Schemas}
+\label{fig:schematyping}
+\end{figure*}
+
+
+\begin{figure}[tbhp]
+\[\begin{array}{lrcl}
+\mbox{\bf Context Expressions} & G & ::= &
+    \emptyce\ |\ \Gamma\ |\ G,n:A\\
+\mbox{\bf Formulas} & F & ::= & \fatm{G}{\of{M}{A}}\ |\ \ftrue\ |\ \ffalse\ |\\
+& & & \myfor{F_1}{F_2}\ |\ \fand{F_1}{F_2}\ |\ \fimp{F_1}{F_2}\ |\\
+& & &\fctx{\Gamma}{\mathcal{C}}{F}\ |\ \fall{x:\alpha}{F}\ |\ \fexists{x:\alpha}{F}
+\end{array}\]
+\caption{The Formulas of \logic}
+\label{fig:formula-syntax}
+\end{figure}
+
+We are finally in a position to describe the formulas of \logic.
+%
+The syntax of these formulas is presented in
+Figure~\ref{fig:formula-syntax}.
+%
+The symbol $\Gamma$ is used in these formulas to represent context
+variables.
+%
+Atomic formulas, which represent LF typing judgements, have the form
+$\fatm{G}{M:A}$.
+%
+The context in these formulas is constituted by a sequence of type
+associations with nominal constants, possibly preceded by a context
+variable.
+%
+Included in the collection are the logical constants $\ftrue$ and
+$\ffalse$ and the familiar connectives for constructing more complex
+formulas.
+%
+Universal and existential quantification over term variables is also
+permitted and these are written as $\fall{x:\alpha}{F}$ and
+$\fexists{x:\alpha}{F}$, respectively.
+%
+Such quantification is indexed, as might be expected, by arity types.
+%
+The collection also includes universal quantification over context
+variables that is typed by context schemas, written as
+$\fctx{\Gamma}{\mathcal{C}}{F}$.
+%
+We assume the usual principle of equivalence under renaming with
+respect to the term and context quantifiers and apply them as needed. 
+
+\begin{figure*}[tbhp]
+
+\begin{center}
+\begin{tabular}{c}
+
+\infer{\wfctx{\STLCGamma}{\Xi}{\emptyce}}
+      {} 
+\qquad
+
+\infer{\wfctx{\STLCGamma}{\Xi}{\Gamma}}
+      {\Gamma \in\Xi}
+
+\qquad
+
+\infer{\wfctx{\STLCGamma}{\Xi}{G,n:A}}
+      {\wfctx{\STLCGamma}{\Xi}{G} \qquad
+       n:\erase{A}\in \STLCGamma \qquad
+       \wftype{\STLCGamma}{A}}
+\\[10pt]
+
+\infer{\wfform{\STLCGamma}{\Xi}{\fatm{G}{M:A}}}
+      {\wfctx{\STLCGamma}{\Xi}{G} \qquad
+       \wftype{\STLCGamma}{A} \qquad
+       \stlctyjudg{\STLCGamma}{M}{\erase{A}}}
+
+\qquad
+
+\infer{\wfform{\STLCGamma}{\Xi}{\ftrue}}{} 
+
+\qquad
+      
+\infer{\wfform{\STLCGamma}{\Xi}{\ffalse}}{}
+
+\\[10pt]
+      
+\infer[\bullet \in \{\supset,\land,\lor\}]
+      {\wfform{\STLCGamma}{\Xi}{F_1 \bullet F_2}}
+      {\wfform{\STLCGamma}{\Xi}{F_1} \qquad 
+       \wfform{\STLCGamma}{\Xi}{F_2}}
+
+\qquad
+
+\infer{\wfform{\STLCGamma}{\Xi}{\fctx{\Gamma}{\mathcal{C}}{F}}}
+      {\acstyping{\mathcal{C}} \qquad
+       \wfform{\STLCGamma}{\Xi \cup \{ \Gamma \}}{F}}
+
+\qquad
+      
+\infer[\genericq \in \{\forall, \exists \}]
+      {\wfform{\STLCGamma}{\Xi}{\fgeneric{x:\alpha}{F}}}
+      {\wfform{\aritysum{\{x:\alpha\}}{\STLCGamma}}{\Xi}{F}}
+ 
+\end{tabular}
+\end{center}
+ 
+\caption{The Wellformedness Judgement for Formulas}
+\label{fig:wfform}
+\end{figure*}
+
+A formula $F$ is determined to be well-formed or not relative to an arity
+context $\STLCGamma$ and a collection of context variables $\Xi$.
+%
+This judgement is written concretely as $\wfform{\STLCGamma}{\Xi}{F}$
+and the rules defining it are presented in Figure~\ref{fig:wfform}.
+%
+At the top-level, formulas are expected to be \emph{closed}, \ie, to not have
+any free term or context variables.
+%
+More specifically, we expect $\wfform{\noms \cup \STLCGamma_0}{\emptyset}{F}$ to be
+derivable for such formulas. 
+%
+The analysis within the scope of term and context
+quantifiers augments these sets in the expected way.
+%
+For context quantifiers, this analysis must also check that the
+annotating context schema is well-formed.
+%
+An atomic formula $\fatm{G}{M:A}$ is deemed well-formed if its
+components $G$, $M$ and $A$ are well-formed and if $M$ can be assigned
+the erased form of $A$ as its arity type.
+%
+The context expression $G$ is well-formed if any context variable used
+in it is bound in the overall formula and if the types assigned to
+nominal constants in the explicit part of $G$ are well-formed and
+such that their erased forms match the arity types of the nominal
+constants they are assigned to.
+%
+Note that these types may use nominal constants without paying
+attention to dependency ordering; assessing
+whether they are used in a manner that respects this ordering is a part
+of the meaning of the atomic formula.
+
+The following theorem, whose proof is obvious, shows that
+the wellformedness judgement for formulas continues to
+hold under the augmentation of the two contexts that  parameterize it. 
+%
+\begin{theorem}\label{th:wfsupset}
+If $\wfform{\STLCGamma}{\Xi}{F}$ has a derivation and $\STLCGamma
+\subseteq \STLCGamma'$ and $\Xi \subseteq \Xi'$, then
+$\wfform{\STLCGamma'}{\Xi'}{F}$ also has a derivation.
+\end{theorem}
+
+\subsection{The Interpretation of Formulas}
+
+A key component to understanding the meanings of formulas is
+understanding the interpretation of the quantifiers over term and
+context variables.
+%
+These quantifiers are intended to range over closed expressions of the
+relevant categories.
+%
+For a quantifier over a term variable, this translates concretely into
+closed terms of the relevant arity type.
+%
+For a quantifier over a context variable, we must first explain when
+a context expression satisfies a context schema. 
+
+\begin{figure*}[tbhp]
+
+\begin{center}
+\begin{tabular}{c}
+
+\infer{\declinst{\mathbb{N}}{\emptybb}{\emptyce}{\emptyset}}{}
+
+\qquad
+
+\infer{\declinst{\mathbb{N}}{\Delta,y:A}{G, n : A'}
+                 {\theta \cup \{\langle y,n,\erase{A}\rangle\}}}
+      {\declinst{\mathbb{N}}{\Delta}{G}{\theta} \qquad
+        n : \erase{A} \in {\mathbb{N}} \qquad
+        \hsub{\theta}{A}{A'}}
+
+\\[15pt]
+
+\infer{\bsinst{\mathbb{N}}{\Psi}{\{x_1 : \alpha_1,\ldots, x_n : \alpha_n\}\Delta}{G}}
+      {\declinst{\mathbb{N}}{\Delta}{G'}{\theta}
+       \quad\ 
+       \{ \stlctyjudg{{\mathbb{N}} \cup \Psi \cup \STLCGamma_0}{t_i}{\alpha_i}\ \vert\ 1 \leq i \leq n \}
+       \quad\ 
+       \hsub{\{\langle x_i,t_i,\alpha_i\rangle \ \vert\ 1 \leq i \leq n \}} 
+             {G'}
+             {G}
+       }
+
+
+\\[15pt]
+
+\infer{\csinstone{\mathbb{N}}{\Psi}{\mathcal{C},\mathcal{B}}{G}}
+      {\bsinst{\mathbb{N}}{\Psi}{\mathcal{B}}{G}}
+
+\qquad
+
+\infer{\csinstone{\mathbb{N}}{\Psi}{\mathcal{C},\mathcal{B}}{G}}
+      {\csinstone{\mathbb{N}}{\Psi}{\mathcal{C}}{G}}
+
+\qquad
+
+\infer{\csinst{\mathbb{N}}{\Psi}{\mathcal{C}}{\emptyce}}
+      {}
+
+\qquad 
+
+\infer{\csinst{\mathbb{N}}{\Psi}{\mathcal{C}}{G, G'}}
+      {\csinst{\mathbb{N}}{\Psi}{\mathcal{C}}{G} \qquad
+       \csinstone{\mathbb{N}}{\Psi}{\mathcal{C}}{G'}}
+
+\end{tabular}
+\end{center}
+
+\caption{Instantiating a Context Schema}
+\label{fig:ctx-schema}
+\end{figure*}
+
+We do this by describing the relation of ``being an instance of''
+between a closed context expression $G$ and a context schema $\mathcal{C}$.
+%
+This relation is indexed by a nominal constant context $\mathbb{N}$
+that is a subset of $\noms$ and a \emph{term variables context} $\Psi$
+that identifies a finite collection of such variables together with their
+arity types: in combination with  the constants in $\STLCGamma_0$,
+these collections, circumscribe the symbols that can be used in the
+declarations in the context expressions.\footnote{In  
+  determining closed instances of context schemas, $\mathbb{N}$ will
+  be $\noms$ and $\Psi$ will be the empty set. The more general form
+  for this relation, which includes a parameterization by these sets,
+  will be useful in later sections.} 
+The relation is written as $\csinst{\mathbb{N}}{\Psi}{\mathcal{C}}{G}$
+and it is defined by the rules in Figure~\ref{fig:ctx-schema}.
+%
+This relation is defined via the repeated use of a ``one-step''
+instantiation relation written as
+$\csinstone{\mathbb{N}}{\Psi}{\mathcal{C}}{G}$; note that by $G, G'$
+we mean a context expression that is obtained by adding the bindings
+corresponding to $G'$ in front of those in $G$.
+%
+The definition of the one-step instantiation relation for context
+schemas uses an auxiliary judgement
+$\bsinst{\mathbb{N}}{\Psi}{\mathcal{B}}{G}$ that denotes the relation
+of ``being an instance of'' between a block 
+schema and a context expression fragment.
+%
+This relation holds when the context expression is obtained by
+generating a sequence of bindings for nominal constants from
+$\mathbb{N}$ using the body of the block schema and then instantiating
+the variables in the header of the block schema with terms of the
+right arity types.
+%
+The former task is realized through the relation
+$\declinst{\mathbb{N}}{\Delta}{G}{\theta}$ that holds between a block of
+declarations $\Delta$, a context expression $G$ that is obtained
+by replacing the variables assigned in $\Delta$ with
+suitable nominal constants, and a substitution $\theta$ that
+corresponds to this replacement.
+%
+We assume here and elsewhere that the application of a hereditary
+substitution to a sequence of declarations  corresponds to its
+application to the type in each assignment. 
+
+\begin{theorem}\label{th:schemainst}
+Let $\mathcal{C}$ and $G$ be a context schema and a context expression
+such that $\acstyping{\mathcal{C}}$ and
+$\csinst{\mathbb{N}}{\Psi}{\mathcal{C}}{G}$ are derivable. Then for
+any arity context $\STLCGamma$ such that
+$\mathbb{N} \cup \Psi \cup \STLCGamma_0 \subseteq \STLCGamma$, it is the case that 
+$\wfctx{\STLCGamma}{\emptyset}{G}$ has a derivation. 
+\end{theorem}
+
+\begin{proof}
+We first show that for any block declaration
+$\Delta$ and any arity context $\STLCGamma$ such that $\mathbb{N}
+\subseteq \STLCGamma$, if $\wfdecls{\STLCGamma}{\Delta}{\STLCGamma'}$ and
+$\declinst{\mathbb{N}}{\Delta}{G'}{\theta'}$ are derivable for some $\STLCGamma'$
+and $\theta'$, then (a)~$\theta'$ is type preserving with respect to
+$\Theta$, (b)~$\Theta'$ is $\aritysum{\context{\theta'}}{\Theta}$, and
+(c)~each binding in $G'$ is of the form $n : A$ where $n:\erase{A}\in
+\Theta$ and $\wftype{\Theta}{A}$ has a derivation.
+%
+This claim is proved by induction on the derivation of
+$\wfdecls{\STLCGamma}{\Delta}{\STLCGamma'}$; properties (a) and (b)
+are included in the claim because they are useful together with
+Theorem~\ref{th:aritysubs-ty} in showing property (c) in the
+induction step. 
+%
+Next we show, through an easy inductive argument, that if
+$\wfdecls{\STLCGamma_0 \cup \{x_1 : \alpha_1, \ldots,
+                              x_n : \alpha_n\}}
+         {\Delta}
+         {\STLCGamma'}$
+has a derivation and $\STLCGamma$ is such that
+$\mathbb{N} \cup \Psi \cup \STLCGamma_0 \subseteq \STLCGamma$, then, for
+some $\STLCGamma''$, it is the case that 
+$\wfdecls{\aritysum{\{x_1 : \alpha_1, \ldots,x_n : \alpha_n\}}
+                   {\STLCGamma}}           
+         {\Delta}
+         {\STLCGamma''}$
+has a derivation.
+%
+Using Theorem~\ref{th:aritysubs-ty} with these two
+observations, we can show easily that if
+$\abstyping{\{x_1 : \alpha_1,\ldots, x_n : \alpha_n\}\Delta}$ and 
+$\bsinst{\mathbb{N}}{\Psi} 
+        {\{x_1 : \alpha_1,\ldots, x_n : \alpha_n\}\Delta}
+        {G}$ 
+have derivations then for each binding of the form $n:A$ in $G$ it is
+the case that $n:\erase{A} \in \Theta$ and $\wftype{\Theta}{A}$.
+%
+The theorem follows easily from this observation.
+\end{proof}
+
+In defining validity for formulas, we will need to consider
+substitutions for context and term variables.
+%
+Context variables substitutions have the form
+$\{G_1/\Gamma_1,\ldots,G_n/\Gamma_n\}$ where, for $1 \leq i \leq n$,
+$\Gamma_i$ is a context variable and $G_i$ is a context expression. 
+%
+If $\sigma$ is such a substitution, we will write $\domain{\sigma}$ to
+denote the set $\{\Gamma_1,\ldots,\Gamma_n\}$.
+%
+Further, the application of $\sigma$ to a formula
+$F$, which is denoted by $\subst{\sigma}{F}$, will correspond to the 
+replacement of the free occurrences of the variables
+$\Gamma_1,\ldots,\Gamma_n$ in $F$ by the corresponding context
+expressions, renaming bound context variables appearing in $F$ away
+from those appearing in $G_1,\ldots,G_n$.
+%
+For term variables, the replacement must also ensure the
+transformation of the resulting expression to normal form.
+%
+Towards this end, we adapt hereditary substitution to formulas.
+%
+The application of this substitution simply distributes over
+quantifiers and logical symbols, respecting the scopes of quantifiers
+through the necessary renaming.
+%
+The application to the atomic formula $\fatm{G}{M:A}$ also distributes
+to the component parts.
+%
+We have already discussed the application to terms and types.
+%
+The application to context expressions leaves context variables
+unaffected and simply distributes to the types in the explicit
+bindings.
+%
+Note that no check is mandated in the process for clashes in the names
+of nominal constants appearing in the context expression being
+substituted into and the substitution terms. 
+%
+In this respect, this application is unlike that to LF contexts
+that is defined in Figure~\ref{fig:hsubctx}.
+
+
+\begin{theorem}\label{th:subst-formula}
+Let $\STLCGamma$ be an arity context and let $\Xi$ be a collection of
+context variables.
+\begin{enumerate}
+\item If $\theta$ is a term variables substitution that is arity type preserving with
+respect to $\STLCGamma$ and $F$ is a formula such that there is a
+derivation for $\wfform{\aritysum{\context{\theta}}{\STLCGamma}}{\Xi}{F}$,
+then there is a unique formula $F'$ such that
+$\hsub{\theta}{F}{F'}$ has a derivation.
+%
+Moreover, for this $F'$ it is the case that
+$\wfform{\STLCGamma}{\Xi}{F'}$ is derivable.  
+
+\item If $\sigma=\{G_1/\Gamma_1,\ldots,G_n/\Gamma_n\}$ is a context variables
+substitution which is such that all judgements in the collection
+\[\left\{\wfctx{\STLCGamma}
+             {\Xi\setminus\{\Gamma_1,\ldots,\Gamma_n\}}{G_i}\ |\ 
+                    1\leq i\leq n\right\}\]
+are derivable and $F$ is a formula such that there is a derivation for
+$\wfform{\STLCGamma}{\Xi}{F}$, then there is a derivation for
+\[\wfform{\STLCGamma}{\Xi\setminus\{\Gamma_1,\ldots,\Gamma_n\}}{\subst{\sigma}{F}}.\]
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+The first clause follows from an induction on the derivation of 
+$\wfform{\aritysum{\context{\theta}}{\STLCGamma}}{\Xi}{F}$, using  
+Theorems~\ref{th:uniqueness} and \ref{th:aritysubs} in the atomic case
+to ensure the appropriate arity typing judgements will be derivable under 
+the substitution $\theta$.
+%
+The second clause follows from an induction on the derivation of
+$\wfform{\STLCGamma}{\Xi}{F}$, using the assumption that
+$\wfctx{\STLCGamma}{\Xi\setminus\{\Gamma_1,\ldots,\Gamma_n\}}{G_i}$
+is derivable to ensure wellformedness under the substitution $\sigma$
+in the atomic case.
+\end{proof}
+
+\noindent Following the notation introduced after Theorem~\ref{th:aritysubs}, 
+if $F$ and $\theta$ are a formula and a substitution that together satisfy
+the requirements of the first part of the theorem, we will write
+$\hsubst{\theta}{F}$ to denote the $F'$ for which 
+$\hsub{\theta}{F}{F'}$ is derivable.
+%
+As is implicit in the preceding discussion, term and context variables
+substitutions may introduce new nominal constants. 
+%
+If $\theta$ is a term variables substitution, we will write
+$\supportof{\theta}$ to denote the collection of such constants that
+appear in the terms in $\range{\theta}$.
+%
+Similarly, if $\sigma$ is the context variables substitution
+$\{G_1/\Gamma_1,\ldots,G_n/\Gamma_n\}$, 
+we will write $\supportof{\sigma}$ to denote the collection of nominal
+constants that appear in $G_1,\ldots,G_n$.
+
+A closed atomic formula of the form
+$\fatm{G}{M:A}$ is intended to encode an LF judgement of the
+form $\lfchecktype{\Gamma}{M}{A}$.
+%
+In this encoding, nominal constants that appear in terms represent
+free variables for which bindings appear in the context in LF
+judgements.
+%
+To substantiate this interpretation, the rules \canonkindpi, \canonfampi\ and
+\canontermlam\ must introduce fresh nominal constants into contexts in
+typing derivations and they must replace bound variables appearing in
+terms and types with these constants. 
+%
+We use this interpretation to define validity for closed atomic
+formulas with one further qualification: unlike in the LF judgement,
+for the atomic formula we must also ascertain the wellformedness of
+the context and the type.
+%
+This notion of validity is then extended to all closed formulas by
+recursion on formula structure.
+
+\begin{definition}\label{def:semantics}
+Let $F$ be a formula such that $\wfform{\noms \cup
+  \STLCGamma_0}{\emptyset}{F}$ is derivable. 
+%
+\begin{itemize}
+\item If $F$ is $\fatm{G}{M:A}$, then it is valid exactly when all of $\lfctx{G}$,
+  $\lftype{G}{A}$, and $\lfchecktype{G}{M}{A}$ are derivable in LF,
+  under the interpretation of nominal constants as variables bound in
+  a context and with the modification of the rules \canonkindpi, \canonfampi\ and
+  \canontermlam\ to introduce fresh nominal constants into contexts and to
+  instantiate the relevant bound variables in kinds, types and terms with
+  these constants.
+
+\item If $F$ is $\ftrue$ it is valid and if it is $\ffalse$ it is not valid.
+
+\item If $F$ is $\fimp{F_1}{F_2}$, it is valid if $F_2$ is valid in
+  the case that $F_1$ is valid.
+
+\item If $F$ is $\fand{F_1}{F_2}$, it is valid if both $F_1$ and
+  $F_2$ are valid.
+
+\item If $F$ is $\myfor{F_1}{F_2}$, it is valid if either $F_1$ or $F_2$ is valid.
+
+\item If $F$ is $\fctx{\Gamma}{\mathcal{C}}{F}$, it is valid if
+  $\subst{\{G/\Gamma\}}{F}$ is valid for every $G$ such that
+  $\csinst{\noms}{\emptyset}{\mathcal{C}}{G}$ is derivable.
+
+\item If $F$ is $\fall{x:\alpha}{F}$, it is valid if
+  $\hsubst{\{\langle x, M,\alpha\rangle \}}{F}$ is valid for every $M$ such that
+  $\stlctyjudg{\noms \cup \STLCGamma_0}{M}{\alpha}$ is derivable.
+
+\item If $F$ is $\fexists{x:\alpha}{F}$, it is valid if
+  $\hsubst{\{\langle x, M,\alpha\rangle \}}{F}$ is valid for some $M$ such that 
+  $\stlctyjudg{\noms \cup \STLCGamma_0}{M}{\alpha}$ is derivable.
+\end{itemize}
+Theorems~\ref{th:schemainst} and \ref{th:subst-formula} ensure the
+coherence of this definition. 
+\end{definition}
+
+\subsection{Understanding the Notion of Validity}\label{ssec:logic-examples}
+
+In the examples we consider below, we assume an instantiation of
+\logic\ 
+based on the signature presented in
+Section~\ref{ssec:informal-reasoning}.
+%
+Obviously, any LF typing judgement based on that signature is expressable
+in the logic.
+%
+Moreover, the corresponding formula will be valid exactly when the
+typing judgement is derivable in LF.
+%
+Thus, the formulas
+$\fatm{\emptyce}{\emptytm : \tmty}$,
+$\fatm{\emptyce}{(\lamtm\app \unittm\app (\lflam{x}{x})) : \tmty}$ and
+$\fatm{n : \tmty}{n:\tmty}$ are all valid. 
+  %
+Similarly, the formulas
+$\fexists{d:\oty}{\fatm{\emptyce}{d : (\ofty \app \emptytm\app
+    \unittm)}}$ and
+\begin{tabbing}
+\qquad\=\kill
+\>$\fexists{d:\oty}{\fatm{\emptyce}{d :\ofty \app (\lamtm \app \unittm\app
+    (\lflam{x}{x}))\app (\arrtm\app \unittm\app \unittm)}}$
+\end{tabbing}
+are valid but the formula
+$\fexists{d:\oty}{\fatm{\emptyce}{d:\ofty \app
+    (\lamtm \app \unittm\app (\lflam{x}{x}))\app \unittm}}$
+is not.
+%
+Note that the arity type associated with the quantified variable in
+each of these formulas provides only a rough constraint on the
+instantiation needed to verify the validity of the formula; to do
+this, the instance must also satisfy LF typeability requirements
+represented by formula that appears within the scope of the
+quantifier.
+
+Wellformedness conditions for formulas ensure only that the terms
+appearing within formulas satisfy canonicity requirements, i.e. that
+these terms are in $\beta$-normal form and that variables and
+constants are applied to as many arguments as they can take.
+%
+Arity typing does not distinguish between terms in different
+expression categories.
+%
+For example, the formula
+\begin{tabbing}
+\qquad\=\kill
+\> $\fexists{d:\oty}{\fatm{\emptyce}{d:\ofty \app (\lamtm \app \emptytm \app
+    (\lflam{x}{x}))\app (\arrtm\app \unittm\app \unittm)}}$
+\end{tabbing}
+is well-formed but not valid.
+%
+An alternative design choice, with equivalent consequences from the
+perspective of the valid properties that can be expressed in the
+logic, might have been to let the fact that $\lamtm$ is ill-applied to
+$\emptytm$ to impact on the wellformedness of the formula.
+%
+The wellformedness conditions do not also enforce a distinctness
+requirement for bindings in a context.
+%
+Thus, the formula $\fatm{n : \tmty, n : \tpty}{\emptytm : \tmty}$ is
+well-formed.
+%
+However, it is not valid because $\lfctx{n : \tmty, n : \tpty}$ is not
+derivable in LF under the described interpretation for nominal
+constants.
+%
+An implication of these observations is that a naive form of weakening 
+does not hold with respect to the encoding of LF derivability in
+\logic; additional conditions similar to this described in 
+Theorem~\ref{th:weakening} must be verified for this principle to
+apply.
+
+To provide a more substantive example of the kinds of properties that
+can be expressed in \logic, let us consider the formal statement of
+the property of uniqueness of type assignments for the STLC.
+%
+As noted in Section~\ref{ssec:informal-reasoning}, this property is
+best described in a form that considers typing expressions in
+contexts that have a particular kind of structure. 
+%
+That structure can be formalized in \logic\ by a context
+schema comprising the single block
+\begin{tabbing}
+  \qquad\=\kill
+  \> $\{t : o\}x:tm,y:\ofty\app x\app t$.
+\end{tabbing}
+%
+Let us denote this context schema by $c$.
+%
+Observe that a context that instantiates this schema will not
+provide a variable that can be used to construct an atomic term of
+type $\tpty$.
+%
+Thus, the strengthening property for expressions representing types
+that is expressed by the formula 
+\begin{tabbing}
+  \qquad\=\kill
+  \> $\fctx{\Gamma}{c}
+           {\fall{t :\oty}
+                 {\fimp{\fatm{\Gamma}{t : \tpty}}
+                   {\fatm{\emptyce}{t:\tpty}}}}$.
+\end{tabbing}
+should hold.
+%
+We can in fact easily show this formula to be valid by
+using Theorem~\ref{th:atomictype} and an induction on the height of
+the derivation for $\fatm{G}{t : \tpty}$ for a closed term $t$ and a
+closed instance $G$ of $c$.
+%
+Using the validity of this formula, we can also easily argue that the
+following formula that expresses a strengthening property pertaining to
+the equality of types is also valid:
+\begin{tabbing}
+  \ \ \=\kill
+  \> $\fctx{\Gamma}{c}
+           {\fall{d :\oty}
+           {\fall{t_1 :\oty}
+           {\fall{t_2 : \oty}
+                 {\fimp{\fatm{\Gamma}{d : \eqty\app t_1\app t_2}}
+                 {\fatm{\emptyce}{d:\eqty\app t_1\app t_2}}}}}}$.
+\end{tabbing}
+
+The property of uniqueness of type assignments for the STLC can be expressed through the
+following formula:
+\begin{tabbing}
+\qquad\=\qquad\=\qquad\=\qquad\=\kill
+\>$\fctx{\Gamma}{c}{\fall{e:\oty}{\fall{t_1:\oty}{\fall{t_2:\oty}{\fall{d_1:\oty}{\fall{d_2:\oty}{}}}}}}$\\
+\>\>$\fimp{\fatm{\Gamma}{e:\tmty}}
+          {\fimp{\fatm{\Gamma}{t_1:\tpty}}
+                {\fimp{\fatm{\Gamma}{t_2:\tpty}}{}}}$\\
+\>\>\> $\fimp{\fatm{\Gamma}{d_1:\ofty\app e\app t_1}}
+             {\fimp{\fatm{\Gamma}{d_2:\ofty\app e\app t_2}}{}}$\\
+\>\>\>\> $\fexists{d_3:\oty}{\fatm{.}{d_3:\eqty\app t_1\app t_2}}$.
+\end{tabbing}
+%
+This formula can be seen to be valid using the strengthening property
+just described if we can establish the validity of the formula
+\begin{tabbing}
+\qquad\=\qquad\=\qquad\=\qquad\=\kill
+\>$\fctx{\Gamma}{c}{\fall{e:\oty}{\fall{t_1:\oty}{\fall{t_2:\oty}{\fall{d_1:\oty}{\fall{d_2:\oty}{}}}}}}$\\
+\>\>$\fimp{\fatm{\Gamma}{e:\tmty}}
+          {\fimp{\fatm{\Gamma}{t_1:\tpty}}
+                {\fimp{\fatm{\Gamma}{t_2:\tpty}}{}}}$\\
+\>\>\> $\fimp{\fatm{\Gamma}{d_1:\ofty\app e\app t_1}}
+             {\fimp{\fatm{\Gamma}{d_2:\ofty\app e\app t_2}}{}}$\\
+\>\>\>\> $\fexists{d_3:\oty}{\fatm{\Gamma}{d_3:\eqty\app t_1\app t_2}}$.
+\end{tabbing}
+To show this, it suffices to argue that, for a closed context
+expression $G$ that instantiates the schema $c$ and for closed
+expressions $d_1$, $d_2$, $e$, $t_1$, and $t_2$, if the formulas
+$\fatm{G}{e:\tmty}$, $\fatm{G}{t_1:\tpty}$, 
+$\fatm{G}{t_2:\tpty}$, $\fatm{G}{d_1 : \ofty\app e\app t_1}$ and 
+$\fatm{G}{d_2 : \ofty\app e\app t_2}$ are valid, then there must be a
+closed expression $d_3$ such that
+$\fatm{G}{d_3 : \eqty\app t_1\app t_2}$ is also valid.
+%
+Such an argument can be constructed by induction on the height
+of the LF derivation of $\lfchecktype{G}{d_1}{\ofty\app e\app t_1}$,
+which we analyze using Theorem~\ref{th:atomictype} in the manner
+discussed earlier. 
+%
+There are essentially four cases to consider, corresponding to
+whether the head symbol of $d_1$ is \ofemptytm, \ofapptm, 
+\oflamtm, or a nominal constant that is assigned the type
+$(\ofty\app n\app t_1)$ in $G$ where $n$ is also a nominal constant that
+is bound in $G$.
+%
+In the last case, we use the fact that the validity of
+$\fatm{G}{d_1 : \ofty\app e\app t_1}$ implies that $\lfctx{G}$ is
+derivable to conclude the uniqueness of $n$ and, hence, of the typing.
+%
+The argument when $d_1$ is \ofemptytm\ has an obvious form.
+%
+The argument when $d_1$ has \ofapptm\ or \oflamtm\ as its head symbol
+will invoke the induction hypothesis. 
+%
+In the case where the head symbol is \oflamtm, we will need
+to consider a shorter derivation of a typing judgement in which the
+context has been enhanced.
+%
+However, we will be able to use the induction hypothesis by observing
+that the enhancements to the context conform to the constraints
+imposed by the context schema. 
+%
+Note that the form of $d_1$ also constrains the form of $e$ in all the
+cases, a fact that is used implicitly in the analysis outlined.
+
+\subsection{Nominal Constants and Invariance Under Permutations}
+\label{ssec:permutations}
+
+The particular choices for bound variable names in the kinds, types
+and terms that comprise LF expressions are considered irrelevant.
+%
+This understanding is built in concretely through the notion of
+$\alpha$-conversion that renders equal expressions that differ
+only in the names used for such variables.
+%
+Typing derivations transform expressions with bound variables into
+ones where variables are ostensibly free but in fact bound implicitly
+in the associated contexts.
+%
+The lack of importance of name choices is reflected in this case in an
+invariance in the validity of typing judgements under a suitable
+renaming of variables appearing in the judgements.
+%
+In a situation where context variables are represented by nominal
+constants, this property can be expressed via an invariance of formula
+validity under permutations of nominal constants as we describe here.
+%
+We begin with a definition of the notions of permutations of
+nominal constants and their applications to expressions. 
+\begin{definition}%[Permutation]
+
+A permutation of the nominal constants is an arity type preserving
+bijection from $\noms$ to $\noms$ that differs from the identity
+map at only a finite number of constants. 
+%
+The permutation that maps $n_1,\ldots, n_m$ to $n_1',\ldots,n_m'$,
+respectively, and is the identity everywhere else is written as 
+$\{n_1'/n_1,\ldots,n_m'/n_m\}$.
+%
+The support of a permutation $\pi=\{n_1'/n_1,\ldots,n_m'/n_m\}$, 
+denoted by $\supp{\pi}$, is the collection of nominal constants
+$\{n_1,\ldots, n_m\}$ or, identically, $\{n_1',\ldots,n_m'\}$.
+%
+Every permutation $\pi$ has an obvious inverse that is written as
+$\inv{\pi}$. 
+\end{definition}
+
+\begin{definition}%[Permutation Application]
+The application of a permutation $\pi$ to an expression $E$ of a
+variety of kinds is described below and is denoted in all cases by
+$\permute{\pi}{E}$.
+%
+If $E$ is a term, type, or kind then the
+application consists of replacing each nominal constant $n$ that
+appears in $E$ with $\pi(n)$. 
+%
+If $E$ is a context then the application of $\pi$ to $E$
+replaces each explicit binding $n:A$ in $E$ with 
+$\pi(n):\permute{\pi}{A}$.
+%
+If $E$ is an LF judgement $\mathcal{J}$ then the permutation is applied
+to each component of the judgement in the way described above.
+%
+If $E$ is a formula then the permutation is applied to its component parts.
+%
+The application of $\pi$ to a term variables substitution
+$\{\langle x_1,M_1,\alpha_1\rangle,\ldots,
+   \langle x_n,M_n,\alpha_n\rangle\}$
+yields the substitution 
+$\{\langle x_1,\permute{\pi}{M_1},\alpha_1\rangle,\ldots,
+   \langle x_n,\permute{\pi}{M_n},\alpha_n\rangle\}$.
+%
+The application of $\pi$ to a context variables substitution
+$\{G_1/\Gamma_1,\ldots, G_n/\Gamma_n\}$ yields
+$\{\permute{\pi}{G_1}/\Gamma_1,\ldots, \permute{\pi}{G_n}/\Gamma_n\}$.
+\end{definition}
+
+The following theorem expresses the property of interest
+concerning LF judgements cast in the form relevant to \logic. 
+%
+\begin{theorem}\label{th:perm-lf}
+Let LF judgements and derivations be recast in the form discussed
+earlier in this section: variables that are bound in a context are
+represented by nominal constants and the rules \canonkindpi,
+\canonfampi\ and \canontermlam\ introduce fresh nominal constants into
+contexts and replace variables in kinds, types and terms with these
+constants.
+%
+In this context, let $\mathcal{J}$ be an LF judgement which has a
+derivation. 
+%
+Then for any permutation $\pi$, $\permute{\pi}{\mathcal{J}}$ is derivable.
+%
+Moreover, the structure of this derivation is the same as that for
+$\mathcal{J}$.
+\end{theorem} 
+\begin{proof}
+This proof is by induction on the derivation for $\mathcal{J}$.
+%
+Perhaps the only observation worthy of note is that the freshness of
+nominal constants used in \canonkindpi, \canonfampi, and
+\canontermlam\ rules is preserved under permutations of nominal
+constants. 
+\end{proof}
+%
+The above observation underlies the main theorem of this section.
+%
+\begin{theorem}\label{th:perm-form}
+Let $F$ be a closed formula and let $\pi$ be a permutation.
+%
+Then $F$ is valid if and only if $\permute{\pi}{F}$ is valid.
+\end{theorem}
+\begin{proof}
+Noting that $\inv{\pi}$ is also a permutation and that
+$\permute{\inv{\pi}}{\permute{\pi}{F}}$ is $F$, it suffices to prove
+the claim in only one direction.
+%
+We do this by induction on the structure of $F$.
+
+The desired result follows easily from
+Theorem~\ref{th:perm-lf} and the relationship of validity to LF
+derivability when $F$ is atomic.
+%
+The cases where $F$ is $\ftrue$ or $\ffalse$ are trivial and the
+ones in which $F$ is $\fimp{F_1}{F_2}$, $\fand{F_1}{F_2}$ or
+$\myfor{F_1}{F_2}$ are easily argued with recourse to the induction
+hypothesis and by noting that the permutation distributes to the
+component formulas.
+
+In the case where $F$ is $\fctx{\Gamma}{\mathcal{C}}{F'}$, we first
+note that if $\csinst{\noms}{\emptyset}{\mathcal{C}}{G}$ has a
+derivation then
+$\csinst{\noms}{\emptyset}{\mathcal{C}}{\permute{\inv{\pi}}{G}}$ must also
+have one.
+%
+From this and the validity of $F$ it follows that
+$\subst{\{(\permute{\inv{\pi}}{G})/\Gamma\}}{F'}$ must be valid.
+%
+Moreover, $\subst{\{(\permute{\inv{\pi}}{G})/\Gamma\}}{F'}$ has the same
+structural complexity as $F'$.
+%
+Hence, by the induction hypothesis,
+$\permute{\pi}{(\subst{\{\permute{(\inv{\pi}}{G})/\Gamma\}}{F'})}$ is valid.
+%
+Noting that this formula is the same as
+$\subst{\{G/\Gamma\}}{(\permute{\pi}{F'})}$ and that
+$\fctx{\Gamma}{\mathcal{C}}{\permute{\pi}{F'}}$ is identical to 
+$\permute{\pi}{(\fctx{\Gamma}{\mathcal{C}}{F'})}$, the validity of
+$\permute{\pi}{F}$ easily follows.
+
+Suppose that $F$ has the form $\fall{x:\alpha}{F'}$.
+%
+We observe here that if
+$\stlctyjudg{\noms \cup \STLCGamma_0}{M}{\alpha}$ has a derivation
+then
+$\stlctyjudg{\noms \cup \STLCGamma_0}{\permute{\inv{\pi}}{M}}{\alpha}$
+has one too and that
+$\permute{\pi}{(\hsubst{\{\langle x,\permute{\inv{\pi}}{M},\alpha\rangle\}}{F'})}$
+is the same formula as
+$\hsubst{\{\langle x,M,\alpha\rangle\}}{(\permute{\pi}{F'})}$.
+%
+Using the definition of validity, the induction hypothesis and the
+fact that permutation distributes to the component formula together
+with the above observations, we may easily conclude that
+$\permute{\pi}{F}$ is valid.
+
+Finally, suppose that $F$ is of the form $\fexists{x:\alpha}{F'}$.
+%
+Here we note that if
+$\stlctyjudg{\noms \cup \STLCGamma_0}{M}{\alpha}$ has a derivation
+then
+$\stlctyjudg{\noms \cup \STLCGamma_0}{\permute{\pi}{M}}{\alpha}$
+has one too and that
+$\permute{\pi}{(\hsubst{\{\langle x, M,\alpha\rangle\}}{F'})}$
+is the same formula as
+$\hsubst{\{\langle
+  x,\permute{\pi}{M},\alpha\rangle\}}{(\permute{\pi}{F'})}$.
+%
+Using the definition of validity and the induction hypothesis, it is
+now easy to conclude that $\permute{\pi}{F}$ must be valid.
+\end{proof}

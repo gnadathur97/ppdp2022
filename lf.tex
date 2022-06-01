@@ -1,0 +1,1029 @@
+\section{LF and its Use in Formalizations}
+\label{sec:lf}
+
+We use in this work the presentation of LF that is referred to as
+\emph{canonical LF}.
+%
+This version of LF admits only terms that are in $\beta$-normal form
+and that are well-typed only if they are additionally in $\eta$-long
+form~\cite{harper07jfp,watkins03tr}.
+%
+An important part of such a treatment is a definition of
+substitution---referred to as \emph{hereditary substitution}---that
+builds in $\beta$-reduction.
+
+The first subsection below presents canonical LF.
+%
+A distinctive aspect of our presentation is a treatment of
+substitution that is independent of LF typing judgements and its
+extension to include the simultaneous replacement of multiple
+variables.
+%
+These generalizations, that are developed more completely
+in~\cite{nadathur21arxiv}, are important to the logic and the proof
+system that we describe in later sections. 
+%
+Towards motivating the development of the logic, 
+we then discuss the use of LF in representing
+object systems and in reasoning about them at an informal level.
+%
+The section concludes with an identification of meta-theorems related
+to derivability in LF that will be used in articulating proof rules in
+our logic.
+
+\subsection{Canonical LF}\label{ssec:lf-syntax}
+
+We describe, in turn, the syntax of canonical LF, the notion of
+substitution and the wellformedness judgements below. 
+
+\begin{figure}[htpb]
+\[
+\begin{array}{r r c l}
+  \mbox{\bf Kinds} & K & ::= & \type\ |\ \typedpi{x}{A}{K}\\[5pt]
+
+  \mbox{\bf Canonical Type Families} & A,B & ::= &
+           P\ |\ \typedpi{x}{A}{B}\\
+  \mbox{\bf Atomic Type Families} & P & ::= & a\ |\ P\app M\\[5pt]
+  \mbox{\bf Canonical Terms} & M,N & ::= & R\ |\ \lflam{x}{M}\\
+  \mbox{\bf Atomic Terms} & R & ::= & c\ |\ x\ |\ R\app M\\[5pt]
+  \mbox{\bf Signatures} & \Sigma & ::= &
+  \emptysig\ |\ \Sigma,c:A\ |\ \Sigma,a:K\\[5pt]
+  \mbox{\bf Contexts} & \Gamma & ::= & \emptyctx\ |\ \Gamma,x:A
+\end{array}
+\]
+\caption{The Syntax of LF Expressions}
+\label{fig:lf-terms}
+\end{figure}
+
+\subsubsection{The Syntax} The syntax of LF expressions is described in
+Figure~\ref{fig:lf-terms}.
+%
+The primary interest is in three categories of expressions:
+kinds, types which are indexed by kinds, and terms which are indexed
+by types. 
+%
+In these expressions, $\lambda$ and $\Pi$ are binding or abstraction
+operators.
+%
+Relative to these operators, we assume the principle of
+equivalence under renaming that is applied as needed. 
+%
+We also assume as understood the notions of free and bound
+variables that are usual to expressions involving such operators.
+%
+To ensure the absence of $\beta$-redexes, terms are stratified into
+\emph{canonical} and \emph{atomic} forms.  
+%
+A similar stratification is used with types that is exploited by the
+formation rules to force all well-typed terms to be in $\eta$-long
+form.
+%
+We use $x$ and $y$ to represent term-level variables, which are bound
+by abstraction operators or in the contexts that are associated with
+terms. 
+%
+Further, we use $c$ and $d$ for term-level constants, and $a$
+and $b$ for type-level constants, both of which are typed in
+signatures. 
+%
+The expression $\imp{A_1}{A_2}$ is used as an alternative notation
+for the type family $\typedpi{x}{A_1}{A_2}$ when $x$ does
+not appear free in $A_2$. 
+%
+An atomic term has the form $(h\app M_1\app \ldots\app M_n)$ where $h$
+is a variable or a constant.
+%
+We refer to $h$ as the \emph{head symbol} of such a term. 
+
+\subsubsection{Simultaneous Hereditary Substitution}
+
+To preserve the form of LF expressions, it is necessary to build 
+$\beta$-reduction into the application of substitutions.
+%
+An important consideration in this context is that substitution
+application must be a terminating operation. 
+%
+Towards ensuring this property, substitutions are indexed by types
+that are eventually intended to characterize the functional structure
+of expressions. 
+
+\begin{definition}\label{def:aritytypes}
+The collection of expressions that are obtained from the constant
+$\oty$ using the binary infix constructor $\atyarr$ constitute the
+{\it arity types}.
+%
+Corresponding to each canonical type $A$, there is an arity type
+called its {\it erased form} and denoted by $\erase{A}$ and given as
+follows: $\erase{P} = \oty$ and $\erase{\typedpi{x}{A_1}{A_2}} =
+\arr{\erase{A_1}}{\erase{A_2}}$.  
+
+\end{definition}
+
+\begin{definition}\label{def:substitution}
+A substitution $\theta$ is a finite set of 
+the form
+\[\{\langle x_1,M_1,\alpha_1 \rangle, \ldots, 
+    \langle x_n, M_n, \alpha_n \rangle \},\]
+where, for $1 \leq i \leq n$, $x_i$ is a
+distinct variable, $M_i$ is a canonical term and $\alpha_i$ is an
+arity type.\footnote{Note that by a 
+systematic abuse of notation, $n$ may be less than $m$ in a sequence written in
+the form $s_m,\ldots,s_n$, in which case the empty sequence is
+denoted. In this particular instance, a substitution can be an empty
+set of triples.}
+%
+Given such a substitution, $\domain{\theta}$ denotes the set 
+$\{x_1,\ldots,x_n\}$ and $\range{\theta}$ denotes the set
+$\{M_1,\ldots,M_n\}$.
+\end{definition}
+
+\begin{figure*}[tbhp]
+
+\begin{tabular}{lccc}    
+\raisebox{2.4ex}{\fbox{$\hsub{\theta}{M}{M'}$}}\hspace{0.5cm} &
+  
+  \infer{\hsub{\theta}
+              {R}
+              {R'}}
+        {\hsubr{\theta}
+              {R}
+              {R'}} \qquad
+  & \qquad
+  \infer{\hsub{\theta}
+              {R}
+              {M'}}
+        {\hsubr{\theta}
+              {R}
+              {M':\alpha'}}
+
+  & \qquad
+\infer{\hsub{\theta}
+            {(\lflam{x}{M})}
+            {\lflam{x}{M'}}}
+      {x\ \mbox{\rm not free in}\ \domain{\theta} \cup \range{\theta}
+        \qquad
+        \hsub{\theta}{M}{M'}}
+\\[10pt]
+
+
+\raisebox{2.4ex}{\fbox{$\hsubr{\theta}{R}{M':\alpha'}$}}\hspace{0.5cm} &
+  
+\infer{\hsubr{\theta}{x}{M:\alpha}}
+      {\langle x,M,\alpha \rangle \in \theta}
+
+& 
+
+\multicolumn{2}{c}
+            {\qquad \infer{\hsubr{\theta}{(R\app M)}{M''':\alpha''}}
+                   {\hsubr{\theta}{R}{\lflam{x}{M'}:\arr{\alpha'}{\alpha''}} 
+                      \qquad
+                    \hsub{\theta}{M}{M''}
+                      \qquad
+                    \hsub{\{\langle x, M'',\alpha'\rangle \}}{M'}{M'''}}}
+
+\\[10pt]
+
+\raisebox{2.4ex}{\fbox{$\hsubr{\theta}{R}{R'}$}}\hspace{0.5cm} &
+  
+\infer{\hsubr{\theta}{c}{c}}
+      { }
+& \qquad
+\infer{\hsubr{\theta}
+            {x}
+            {x}}
+      {x\not\in\domain{\theta}}
+
+& \qquad 
+\infer{\hsubr{\theta}{(R\app M)}{R'\app M'}}
+       {\hsubr{\theta}{R}{R'} \qquad\qquad
+        \hsub{\theta}{M}{M'}}
+\end{tabular}
+\caption{Applying Substitutions to Terms}
+\label{fig:hsub}
+\end{figure*}
+
+Given a substitution $\theta$ and an expression $E$ that is a kind, a
+type, a canonical term or a context, we wish the expression
+$\hsubst{\theta}{E}$ notionally to denote the application of $\theta$
+to $E$.
+%
+However, such an application is not guaranteed to exist.
+%
+We therefore use the expression $\hsub{\theta}{E}{E'}$ to indicate
+when it is defined and has $E'$ as a result.
+%
+The key part of defining this relation is that of articulating
+its meaning when $E$ is a canonical term.
+%
+This is done in Figure~\ref{fig:hsub} via rules for deriving this
+relation. 
+%
+These rules use an auxiliary definition of substitution into an
+atomic term which accounts for any normalization that is necessitated
+by the replacement of a variable by a term.
+%
+The different categories of rules in this figure are distinguished by
+being preceded by a box containing the judgement form they relate to.
+%
+The extension of this definition to the case where $E$ is a kind or a type
+corresponds essentially to the application of the substitution to the
+terms that appear within $E$. 
+%
+This idea is made explicit for types in Figure~\ref{fig:hsubtypes} and its
+elaboration for kinds is similar.
+%
+A substitution is meaningfully applied to a context only when it does
+not replace variables to which the context assigns types and when a
+replacement does not lead to inadvertent capture.
+%
+When these conditions are satisfied, the substitution distributes to
+the types that are assigned to the variables as the rules in
+Figure~\ref{fig:hsubctx} make clear. 
+
+
+\begin{figure}[tbhp]
+\begin{center}
+\begin{tabular}{c}
+\infer{\hsub{\theta}{a}{a}}
+      { }
+
+\qquad \qquad
+  
+\infer{\hsub{\theta}{(P\app M)}{(P'\app M')}}
+      {\hsub{\theta}{P}{P'} &
+       \hsub{\theta}{M}{M'}}
+
+\\[10pt]
+
+\infer{\hsub{\theta}{(\typedpi{x}{A_1}{A_2})}{\typedpi{x}{A_1'}{A_2'}}}
+      {x\ \mbox{\rm not free in}\ \domain{\theta} \cup \range{\theta}
+        \qquad
+        \hsub{\theta}{A_1}{A_1'} \qquad
+       \hsub{\theta}{A_2}{A_2'}}
+\end{tabular}
+\end{center}
+
+\caption{Applying Substitutions to Types}
+\label{fig:hsubtypes}
+\end{figure}
+
+\begin{figure}[tbhp]
+\begin{tabular}{c}
+  \infer
+    {\hsub{\theta}
+          {\emptyctx}
+          {\emptyctx}}
+    {}
+
+\\[10pt]
+    
+  \infer
+    {\hsub{\theta}{(\Gamma, x:A)}{\Gamma', x:A'}}
+    {x\ \mbox{\rm not free in}\ \domain{\theta} \cup \range{\theta} \qquad
+     \hsub{\theta}{\Gamma}{\Gamma'} \qquad
+     \hsub{\theta}{A}{A'}} 
+\end{tabular}
+\caption{Applying Substitutions to Contexts}
+\label{fig:hsubctx}
+\end{figure}
+
+We define a measure on substitutions that is useful in showing that
+their application terminates. 
+
+\begin{definition}\label{def:typesubsize}
+The size of an arity type is the number of occurrences of $\atyarr$ in
+it. The size of a substitution is the largest of the sizes of the arity types
+in each of its triples.
+\end{definition}
+
+The following theorem can be proved by induction first on
+the sizes of substitutions and then on the structures of expressions;
+it would first be proved simultaneously for canonical and atomic terms
+and then extended to types, kinds and contexts. 
+%
+\begin{theorem}\label{th:uniqueness}
+For any context, kind, type or canonical term $E$ and any substitution
+$\theta$, it is decidable whether there is an $E'$ such that
+$\hsub{\theta}{E}{E'}$ is derivable.
+%
+Moreover, there is at most one $E'$ for which it is derivable.
+%
+Similarly, for any atomic term $R$ and substitution $\theta$, it is
+decidable whether there is an $R'$ or an $M'$ and $\alpha'$ such
+that $\hsubr{\theta}{R}{R'}$ or $\hsubr{\theta}{R}{M' : \alpha'}$ is
+derivable, at most one of these judgements is derivable and that too
+for a unique $R'$, respectively, $M'$ and $\alpha'$. 
+\end{theorem}
+
+% The following property has an obvious proof by induction on the
+% structure of the expression.
+
+% \begin{theorem}\label{th:vacuoussubs}
+% If $E$ is a kind, a type or a canonical term none of whose free
+% variables is a member of $\domain{\theta}$, then $\hsub{\theta}{E}{E}$ has
+% as derivation. If $R$ is an atomic term none of whose free variables
+% is a member of $\domain{\theta}$ then $\hsubr{\theta}{R}{R}$ has a
+% derivation.
+% \end{theorem}
+
+% Simultaneous hereditary substitution enjoys a permutation 
+% property that is stated in the following theorem. This property is
+% similar to the one described in \cite{harper07jfp} for unitary
+% substitution and its proof is similar.
+
+% \begin{theorem}\label{th:subspermute}
+% Let $\theta_1$ be the substitution
+% \[\{\langle x_1, M_1,\alpha_1
+% \rangle, \ldots \langle x_n,M_n,\alpha_n \rangle \}.\]
+% %
+% Further, let
+% $\theta_2$ be the substitution  $\{\langle y_1, N_1,\beta_1
+% \rangle, \ldots \langle y_m,N_m,\beta_m \rangle \}$ where
+% $y_1,\ldots,y_m$ are variables that are distinct from $x_1,\ldots,x_n$ 
+% and that do not appear free in $M_1,\ldots,M_n$.  
+% %
+% Finally, suppose that for each $i$, $1 \leq i \leq m$, there is some
+% $N'_i$ such that $\hsub{\theta_1}{N_i}{N'_i}$ has a derivation and let
+% $\theta_3 = \{ \langle y_1, N'_1,\beta_1 \rangle, \ldots \langle
+% y_m,N'_m,\beta_m \rangle \}$.
+% %
+% For every kind, type and canonical term $E$, $E_1$ and
+% $E_2$ such that $\hsub{\theta_1}{E}{E_1}$ and $\hsub{\theta_2}{E}{E_2}$ have
+% derivations, there must be an $E'$ such 
+% that $\hsub{\theta_1}{E_2}{E'}$ and $\hsub{\theta_3}{E_1}{E'}$ have
+% derivations.
+% \end{theorem}
+
+\begin{figure}[tbhp]
+\begin{center}
+
+  \begin{tabular}{c}
+
+  \infer
+      {\stlctyjudgr{\STLCGamma}{c}{\alpha}}
+      {c: \alpha \in \STLCGamma}
+
+  \qquad
+  \infer
+      {\stlctyjudgr{\STLCGamma}{x}{\alpha}}
+      {x: \alpha \in \STLCGamma}
+
+  \qquad
+  \infer
+      {\stlctyjudgr{\STLCGamma}{R \app M}{\alpha}}
+      {\stlctyjudgr{\STLCGamma}{R}{\alpha' \atyarr \alpha} \qquad
+       \stlctyjudg{\STLCGamma}{M}{\alpha'}}
+
+  \\[15pt]
+  \infer
+      {\stlctyjudg{\STLCGamma}{\lflam{x}{M}}{\alpha_1 \atyarr \alpha_2}}
+      {\stlctyjudg{\aritysum{\{x:\alpha_1\}}{\STLCGamma}}{M}{\alpha_2}}
+
+  \qquad
+  \infer
+      {\stlctyjudg{\STLCGamma}{R}{\oty}}
+      {\stlctyjudgr{\STLCGamma}{R}{\oty}}
+  \end{tabular}
+\end{center}
+\caption{Arity Typing for Canonical Terms}\label{fig:aritytyping}
+\end{figure}
+
+While the application of a substitution to an LF expression may not
+always exist, this is guaranteed to be the case when certain arity
+typing constraints are satisfied as we describe below.
+
+\begin{definition}\label{def:aritytyping}
+\begin{enumerate}
+\item An \emph{arity context} $\STLCGamma$ is a set of unique
+  assignments of arity types to (term) constants and variables; these
+  assignments are written as $x:\alpha$ or $c:\alpha$.
+%
+\item Given two arity contexts $\STLCGamma_1$ and $\STLCGamma_2$, we write
+$\aritysum{\STLCGamma_1}{\STLCGamma_2}$ to denote the collection of all the 
+assignments in $\STLCGamma_1$ and the assignments in $\STLCGamma_2$ to
+the constants or variables not already assigned a type in $\STLCGamma_1$. 
+%
+\item
+The rules in Figure~\ref{fig:aritytyping} define the arity typing
+relation denoted by $\stlctyjudg{\STLCGamma}{M}{\alpha}$ between
+a term $M$ and an arity type $\alpha$ relative to an arity context
+$\STLCGamma$. 
+%
+\item 
+A kind or type $E$ is said to respect an arity context $\STLCGamma$
+under the following conditions: if $E$ is $\type$; if $E$ is an atomic
+type and for each canonical term $M$ appearing in $E$ there is an
+arity type $\alpha$ such that $\stlctyjudg{\STLCGamma}{M}{\alpha}$ is 
+derivable; and if $E$ has the form $\typedpi{x}{A}{E'}$ and $A$
+respects $\STLCGamma$ and $E'$ respects
+$\aritysum{\{x:\erase{A}\}}{\STLCGamma}$. 
+%
+A context $\Gamma$ is said to respect $\STLCGamma$ if
+for every $x:A$ appearing in $\Gamma$ it is the case that $A$ respects
+$\STLCGamma$.
+%
+\item
+A substitution $\theta$ is {\it arity type preserving}
+with respect to $\Theta$ if for every $\langle x,M,\alpha \rangle \in
+\theta$ it is  the case that $\stlctyjudg{\STLCGamma}{M}{\alpha}$ is
+derivable. 
+%
+\item
+Given a substitution $\theta$, the expression $\context{\theta}$
+denotes the arity context $\{ x : \alpha\ \vert\ \langle x, M, \alpha
+\rangle \in \theta \}$. 
+%
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}\label{th:aritysubs}
+Let $\theta$ be a substitution that is arity type preserving with
+respect to $\STLCGamma$ and let $\STLCGamma'$ denote the arity context 
+$\aritysum{\context{\theta}}{\STLCGamma}$. 
+%
+\begin{enumerate}
+\item If $E$ is a canonical type or kind that respects the
+  arity context $\STLCGamma'$, then there must be an $E'$ that
+  respects $\STLCGamma$ and that is such that $\hsub{\theta}{E}{E'}$
+  is derivable. 
+
+\item If $M$ is a canonical term such that
+$\stlctyjudg{\STLCGamma'}{M}{\alpha}$ is
+derivable, then there must be an $M'$ such that there are derivations
+for $\hsub{\theta}{M}{M'}$ and $\stlctyjudg{\STLCGamma}{M'}{\alpha}$.
+
+\item If $R$ is an atomic term such that
+  $\stlctyjudgr{\STLCGamma'}{R}{\alpha}$
+  is derivable, then either there is an atomic term $R'$ such that
+  $\hsub{\theta}{R}{R'}$ and $\stlctyjudgr{\STLCGamma}{R}{\alpha}$ are
+  derivable or there is a canonical term $M$ such that
+  $\hsub{\theta}{R}{M : \alpha}$ and
+  $\stlctyjudg{\STLCGamma}{M}{\alpha}$ are derivable. 
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+The first clause in the theorem is an easy consequence of the
+second. Clauses (2) and (3) are proved simultaneously by induction
+first on the sizes of substitutions and then on the structure of
+terms.
+% 
+The argument proceeds by considering the cases for the term structure,
+first proving (3) and then using this in proving (2). 
+\end{proof}
+
+We will often consider expressions and substitutions that satisfy the
+arity typing requirements of the theorem above, which then guarantees
+that the applications of the substitutions have results.  
+%
+We introduce a notation that is convenient in this situation: we will
+write $\hsubst{\theta}{E}$ to denote the unique $E'$ such that
+$\hsub{\theta}{E}{E'}$ has a derivation whenever such a derivation is
+known to exist.
+
+
+The erased form of a type is invariant under substitution. This is the
+content of the theorem below whose proof is straightforward.
+
+\begin{theorem}\label{th:erasure}
+For any type $A$ and substitution $\theta$, if $\hsub{\theta}{A}{A'}$
+has a derivation, then $\erase{A} = \erase{A'}$.
+\end{theorem}
+
+\subsubsection{Wellformedness Judgements}
+
+\begin{figure*}[htbp]
+
+\begin{tabular}{lc}
+\raisebox{5.5ex}{\fbox{$\lfsig{\Sigma}$}}
+
+& 
+\begin{tabular}{c}
+
+\infer[\sigempty]{\lfsig{\emptysig}}{} \qquad
+  
+\infer[\sigterm]
+      {\lfsig{\Sigma,c:A}}
+      {\lfsig{\Sigma} \qquad \lftype{\emptyctx}{A} \qquad c\ \mbox{\rm does not
+          appear in}\ \Sigma}
+
+\\[10pt]
+
+\infer[\sigfam]
+      {\lfsig{\Sigma,a:K}}
+      {\lfsig{\Sigma} \qquad \lfkind{\emptyctx}{K} \qquad a\ \mbox{\rm does not
+          appear in}\ \Sigma}
+\end{tabular}
+
+\\[40pt]
+
+\raisebox{1.3ex}{\fbox{$\lfctx{\Gamma}$}} 
+
+& 
+\begin{tabular}{c}
+    
+\infer[\ctxempty]
+      {\lfctx{\emptyctx}}{}
+
+\qquad
+      
+\infer[\ctxterm]
+      {\lfctx{\Gamma,x:A}}
+      {\lfctx{\Gamma} \qquad \lftype{\Gamma}{A} \qquad x\ \mbox{\rm does not
+          appear free in}\ \Gamma}
+\end{tabular}
+
+\\[20pt]
+
+\raisebox{1.3ex}{\fbox{$\lfkind{\Gamma}{K}$}}
+
+& 
+
+\begin{tabular}{c}
+\infer[\canonkindtype]
+      {\lfkind{\Gamma}{\type}}{}
+
+\qquad 
+\infer[\canonkindpi]
+      {\lfkind{\Gamma}{\typedpi{x}{A}{K}}}
+      {\lftype{\Gamma}{A} \qquad
+       \lfkind{\Gamma,x:A}{K}}
+\end{tabular}
+
+\\[20pt]
+
+\raisebox{1.3ex}{\fbox{$\lftype{\Gamma}{A}$}}
+
+& 
+
+\begin{tabular}{cc}       
+\infer[\canonfamatom]
+      {\lftype{\Gamma}{P}}
+      {\lfsynthkind{\Gamma}{P}{\type}}\quad & \quad
+\infer[\canonfampi]
+      {\lftype{\Gamma}{\typedpi{x}{A_1}{A_2}}}
+      {\lftype{\Gamma}{A_1} \qquad \lftype{\Gamma, x:A_1}{A_2}}
+\end{tabular}
+
+\\[20pt]
+
+\raisebox{1.3ex}{\fbox{$\lfsynthkind{\Gamma}{P}{K}$}}
+
+& 
+
+\begin{tabular}{cc}
+\infer[\atomfamconst]
+      {\lfsynthkind{\Gamma}{a}{K}}
+      {a:K\in\Sigma}
+&
+\infer[\atomfamapp]
+      {\lfsynthkind{\Gamma}{P\app M}{K}}
+      {\lfsynthkind{\Gamma}{P}{\typedpi{x}{A}{K_1}} \qquad
+       \lfchecktype{\Gamma}{M}{A} \qquad
+      \hsub{\{\langle x, M, \erase{A}\rangle\}}{K_1}{K}}
+\end{tabular}
+
+\\[20pt]
+
+\raisebox{1.3ex}{\fbox{$\lfchecktype{\Gamma}{M}{A}$}}
+
+&
+
+\begin{tabular}{cc}
+\infer[\canontermatom]
+      {\lfchecktype{\Gamma}{R}{P}}
+      {\lfsynthtype{\Gamma}{R}{P}} \quad & \quad 
+\infer[\canontermlam]
+      {\lfchecktype{\Gamma}{\lflam{x}{M}}{\typedpi{x}{A_1}{A_2}}}
+      {\lfchecktype{\Gamma,x:A_1}{M}{A_2}}
+\end{tabular}
+
+\\[20pt]
+
+\raisebox{5.5ex}{\fbox{$\lfsynthtype{\Gamma}{R}{A}$}}
+
+&
+
+\begin{tabular}{c}
+\infer[\atomtermvar]
+      {\lfsynthtype{\Gamma}{x}{A}}
+      {x:A\in\Gamma}
+\qquad
+\infer[\atomtermconst]
+      {\lfsynthtype{\Gamma}{c}{A}}
+      {c:A\in\Sigma}
+      
+\\[10pt]
+      
+\infer[\atomtermapp]
+      {\lfsynthtype{\Gamma}{R\app M}{A}}
+      {\lfsynthtype{\Gamma}{R}{\typedpi{x}{A_1}{A_2}} \qquad
+       \lfchecktype{\Gamma}{M}{A_1} \qquad
+       \hsub{\{\langle x, M, \erase{A_1}\rangle\}}{A_2}{A}} 
+ \end{tabular}
+
+\end{tabular}
+
+\caption{The Formation Rules for LF}
+\label{fig:lf-judgements}
+\end{figure*}
+
+Canonical LF includes seven judgements: $\lfsig{\Sigma}$ that ensures
+that the constants declared in a signature are distinct and their type
+or kind classifiers are well-formed; $\lfctx{\Gamma}$ that ensure that
+the variables declared in a signature are distinct and their type
+classifiers are well-formed in the preceding declarations and
+well-formed signature $\Sigma$; $\lfkind{\Gamma}{K}$ that determines
+that a kind $K$ is well-formed with respect to a well-formed signature
+and context pair; $\lftype{\Gamma}{A}$ and
+$\lfsynthkind{\Gamma}{P}{K}$ that check, respectively, the formation
+of a canonical and atomic type relative to a well-formed 
+signature, context and kind triple; and $\lfchecktype{\Gamma}{M}{A}$ and
+$\lfsynthtype{\Gamma}{R}{A}$ that ensure, respectively, that a
+canonical and atomic term are well-formed with respect to a
+well-formed signature, context and canonical type triple. 
+%
+Figure~\ref{fig:lf-judgements} presents the rules for deriving
+these judgements.
+%
+In the rules \canonkindpi\ and \canontermlam\ we assume $x$ to be a
+variable that does not appear free in $\Gamma$.
+%
+The formation rule for type and term level application,
+i.e. $\atomfamapp$ and $\atomtermapp$, require the substitution of a
+term into a kind or a type.
+%
+Use is made towards this end of hereditary substitution. The index for
+such a substitution is obtained by erasure from the type established
+for the term.
+
+The judgement forms other than $\lfsig{\Sigma}$ that are described
+above are parameterized by a signature that remains unchanged in the
+course of their derivation.
+%
+In the rest of this paper we will assume a fixed signature that has in
+fact been verified to be well-formed at the outset. 
+%
+The judgement forms require some of their other components to satisfy
+additional restrictions. 
+%
+For example, judgements of the forms $\lfchecktype{\Gamma}{M}{A}$ and
+$\lfsynthtype{\Gamma}{R}{A}$ require $\Sigma$, $\Gamma$ and $A$
+to be well-formed as an ensemble.
+%
+To be coherent, the rules in Figure~\ref{fig:lf-judgements} must
+ensure that in deriving a judgement that satisfies these requirements,
+it is necessary only to consider the derivation of judgements that
+also accord with these requirements.
+%
+The fact that they possess this property can be verified by an
+inspection of their structure, using the observation that
+hereditary substitution preserves the property of being well-formed
+for kinds and types.  
+
+% Arity typing judgements for terms approximate LF typing judgements as
+% made precise below. 
+
+% \begin{definition}
+%   The arity context induced by the signature $\Sigma$  and context
+%   $\Gamma$ is the collection of assignments that includes $x :
+%   \erase{A}$ for each $x : A \in \Gamma$ and $c : \erase{A}$ for each
+%   $c : A \in \Sigma$.
+%   %
+%   When the context $\Gamma$ is irrelevant or empty, we shall refer to
+%   the arity context as the one induced by just $\Sigma$.
+% \end{definition}
+
+% \begin{theorem}\label{th:arityapprox}
+%   Let $\STLCGamma$ be the arity context induced by the signature
+%   $\Sigma$ and context $\Gamma$.
+%   %
+%   If $\lfctx{\Gamma}$ then $\Gamma$ respects $\Theta$.
+%   %
+%   If $\lfkind{\Gamma}{K}$ or $\lftype{\Gamma}{A}$ then, respectively,
+%   $K$ or $A$ respect $\STLCGamma$.
+%   %
+%   If $\lfchecktype{\Gamma}{M}{A}$ is derivable, then
+%   $\stlctyjudg{\STLCGamma}{M}{\erase{A}}$ must also be derivable.
+%   %
+%   If $\lfsynthtype{\Gamma}{R}{A}$ is derivable, then
+%   $\stlctyjudg{\STLCGamma}{R}{\erase{A}}$ must also be derivable.
+% \end{theorem}
+
+% \begin{proof}
+% The last two parts of the theorem are proved simultaneously by
+% induction on the size of the derivation of
+% $\lfchecktype{\Gamma}{M}{A}$ and $\lfsynthtype{\Gamma}{R}{A}$. 
+% %
+% The first two parts follows from them, again by induction on the
+% derivation size.  
+% \end{proof}
+
+\subsection{Formalizing Object Systems in LF}\label{ssec:informal-reasoning}
+
+\begin{figure*}[htbp]
+\begin{tabular}{lcl}
+  $\of{\tpty}{\type}$
+  & \qquad & 
+  $\of{\ofemptytm}{\ofty\app\emptytm\app\unittm}$
+
+  \\
+  
+  $\of{\unittm}{\tpty}$
+  & &
+
+  \\
+
+  $\of{\arrtm}{\arr{\tpty}{\tpty}}$
+  & &
+  $\of{\ofapptm}
+      {\typedpi{E_1}{\tmty}{\typedpi{E_2}{\tmty}
+      {\typedpi{T_1}{\tpty}{\typedpi{T_2}{\tpty}{}}}}}$
+  \\
+  & &
+    \qquad
+    $\typedpi{D_1}{\ofty\app E_1\app (\arrtm\app T_1\app T_2)}{
+       \typedpi{D_2}{\ofty\app E_2\app T_1}{}}$
+
+  \\
+
+  $\of{\tmty}{\type}$
+  & &
+  \qquad $\ofty\app(\apptm\app E_1\app E_2)\app T_2$
+
+  \\
+
+  $\of{\emptytm}{\tmty}$
+  & &
+  \\
+
+  $\of{\apptm}{\arr{\tmty}{\arr{\tmty}{\tmty}}}$ & &
+    $\of{\oflamtm}
+        {\typedpi{R}
+        {\arr{\tmty}{\tmty}}
+        {\typedpi{T_1}{\tpty}{\typedpi{T_2}{\tpty}{}}}}$
+  \\
+
+  $\of{\lamtm}{\arr{\tpty}{\arr{(\arr{\tmty}{\tmty})}{\tmty}}}$
+  &  & 
+  \qquad $\typedpi{D}{(\typedpi{x}{\tmty}
+           {\typedpi{y}{\ofty\app x\app T_1}
+           {\ofty\app(R\app x)\app T_2}})}{}$
+  \\
+  
+  & & \qquad $\ofty\app(\lamtm\app T_1\app(\lflam{x}{R\app x}))
+                              \app(\arrtm\app T_1\app T_2)$
+  \\
+
+  $\of{\ofty}{\arr{\tmty}{\arr{\tpty}{\type}}}$ & & \\  
+
+  $\of{\eqty}{\arr{\tpty}{\arr{\tpty}{\type}}}$ & &
+    $\of{\refltm}{\typedpi{T}{\tpty}{\eqty\app T\app T}}$
+\end{tabular}
+\caption{An LF Specification for the Simply-Typed Lambda Calculus}
+\label{fig:stlc-term-spec}
+\end{figure*}
+
+A key use of LF is in formalizing systems that are described 
+through relations between objects that are specified through a
+collection of inference rules. 
+%
+In the paradigmatic approach, each such relation is represented by a
+dependent type whose term arguments are encodings of objects that
+might be in the relation in question.
+%
+The inference rules translate in this context into term constructors
+for the type representing the relation.
+%
+We illustrate these ideas through an encoding of the typing relation
+for the simply-typed $\lambda$-calculus (STLC), a running example for this
+paper. 
+
+We assume the reader to be familiar with the types and terms in the
+STLC and also with the rules that define its typing relation.
+%
+Figure~\ref{fig:stlc-term-spec} presents an LF signature that serves as
+an encoding of this system. 
+%
+This encoding uses the higher-order abstract syntax approach to
+treating binding. 
+%
+The specification introduces two type families, $\tpty$ and $\tmty$ to 
+represent the simple types and $\lambda$-terms.
+%
+Additionally, for each expression form in the object system, it
+includes a constant that produces a term of type $\tpty$ or $\tmty$;
+as should be apparent from the declarations, we have assumed an object
+language whose terms are constructed from a single constant of
+atomic type that is represented by the LF constant \emptytm\ and whose
+type is represented by the LF constant \unittm.
+%
+This signature also provides a representation of two relations over
+object language expressions: typing between terms and types and
+equality between types. 
+%
+Specifically, the type-level constants $\ofty$ and $\eqty$ are
+included towards this end. 
+%
+The rules defining the relations of interest in the object system are
+encoded by constants in the signature.
+%
+The types associated with these constants ensure that well-formed
+terms of atomic type that are formed using the constants correspond to
+derivations of the relation in the object language that is represented
+by the type. 
+
+One of the purposes for constructing a specification is to use it to
+prove properties about the object system.
+%
+For example, we may want to show that when a type can be associated
+with a term in the STLC, it must be unique.
+%
+Based on our encoding, this property can be stated as the following
+about typing derivations in LF:
+\begin{quotation}
+\noindent For any terms $M_1,M_2,E,T_1,T_2$, if there are LF
+derivations for
+$\lfchecktype{}{E}{\tmty}$, $\lfchecktype{}{T_1}{\tpty}$,
+$\lfchecktype{}{T_2}{\tpty}$,
+$\lfchecktype{}{M_1}{\ofty\app E\app T_1}$ and
+$\lfchecktype{}{M_2}{\ofty\app E\app T_2}$, then there must be a term
+$M_3$ such than there is a derivation for
+$\lfchecktype{}{M_3}{\eqty\app T_1\app T_2}$. 
+\end{quotation}
+To prove this property, we would obviously need to unpack its logical
+structure.
+%
+We would also need to utilize an understanding of LF in
+analyzing the hypothesized typing derivations corresponding to the
+STLC typing judgements. 
+%
+Considering the case where $E$ is an abstraction will lead us to actually
+wanting to prove a more general property:
+\begin{quotation}
+\noindent For any terms $M_1,M_2,E,T_1,T_2$ and contexts $\Gamma$, if
+there are LF derivations for the judgements
+$\lfchecktype{\Gamma}{E}{\tmty}$, $\lfchecktype{\Gamma}{T_1}{\tpty}$,
+$\lfchecktype{\Gamma}{T_2}{\tpty}$,
+$\lfchecktype{\Gamma}{M_1}{\ofty\app E\app T_1}$ and
+$\lfchecktype{\Gamma}{M_2}{\ofty\app E\app T_2}$, 
+then there must be a term $M_3$ such than there is a derivation
+for $\lfchecktype{}{M_3}{\eqty\app T_1\app T_2}$. 
+\end{quotation}
+Now, this property is not provable without some constraints on the form
+of contexts.
+%
+In this example, it suffices to prove it when $\Gamma$ is restricted
+to being of the form
+\begin{center}
+ $(x_1:\tmty,y_1:\ofty\app x_1\app{Ty}_1,\ldots,x_n:\tmty,y_n:\ofty\app x_n\app{Ty}_n)$.
+\end{center}
+%
+\noindent In completing the argument, we would need to use properties of LF
+derivability.
+%
+A property that would be essential in this case is the finiteness of
+LF derivations, which enables us to use an inductive argument.
+
+The objective in this paper is to provide a formal mechanism for
+carrying out such analysis.
+%
+The first step in this direction would be the description of a logic
+that permits the expression of the properties that we might want to
+verify. 
+%
+We would then want to complement the logic with inference rules that 
+permit the encoding of interesting and sound forms of reasoning. 
+
+\subsection{A Synthetic Typing Rule}
+%\subsection{Meta-Theoretic Properties about LF Derivability}
+\label{ssec:lf-properties}
+
+% Our reasoning system will need to embody an understanding of
+% derivability in LF.  
+% %
+% We describe some properties related to this notion here that will be 
+% useful in this context. 
+% %
+% The first three theorems, which express structural properties
+% about derivations, have easy proofs.
+% %
+% The fourth theorem states a subsitutivity property for wellformedness
+% judgements.
+% %
+% This theorem is proved in \cite{harper07jfp}.
+
+% \begin{theorem}\label{th:weakening}
+% If $\mathcal{D}$ is a derivation for $\lfkind{\Gamma}{K}$,
+% $\lftype{\Gamma}{A}$ or $\lfchecktype{\Gamma}{M}{A}$, then, for any
+% variable $x$ that is fresh to the judgement and for any $A'$ such that
+% $\lftype{\Gamma}{A'}$ is derivable, there is a derivation,
+% respectively, for $\lfkind{\Gamma, x:A'}{K}$,
+% $\lftype{\Gamma, x : A'}{A}$ or $\lfchecktype{\Gamma, x: A'}{M}{A}$
+% that has the same structure as $\mathcal{D}$. 
+% \end{theorem}
+
+% \begin{theorem}\label{th:strengthening}
+%   If $\mathcal{D}$ is a derivation for judgements $\lfkind{\Gamma, x:A'}{K}$,
+% $\lftype{\Gamma, x : A'}{A}$ or $\lfchecktype{\Gamma, x: A'}{M}{A}$
+%   and $x$ is a variable that does not appear free in $K$, $A$, or $M$
+%   and $A$ respectively, then there must be a derivation that has the
+%   same structure as $\mathcal{D}$ for $\lfkind{\Gamma}{K}$,
+%   $\lftype{\Gamma}{A}$ or $\lfchecktype{\Gamma}{M}{A}$, respectively.
+% \end{theorem}
+
+% \begin{theorem}\label{th:exchange}
+% If $x$ does not appear in $A_2$ then
+% $\Gamma_1,y:A_2,x:A_1,\Gamma_3$ is a well-formed context with respect
+% to a signature $\Sigma$ whenever $\Gamma_1,x:A_1,y:A_2,\Gamma_3$ is. 
+% %
+% Further, if there is a derivation $\mathcal{D}$ for
+% $\lfkind{\Gamma, x:A_1, y:A_2,\Gamma_2}{K}$,
+% $\lftype{\Gamma, x:A_1, y:A_2,\Gamma_2}{A}$ or $\lfchecktype{\Gamma,
+%   x:A_1, y:A_2,\Gamma_2}{M}{A}$, then there must be a derivation that
+% has the same structure as $\mathcal{D}$ for
+% $\lfkind{\Gamma, y:A_2, x:A_1,\Gamma_2}{K}$,
+% $\lftype{\Gamma, y:A_2, x:A_1,\Gamma_2}{A}$ or $\lfchecktype{\Gamma,
+%   y:A_2, x:A_1,\Gamma_2}{M}{A}$, respectively.
+% \end{theorem}
+
+% \begin{theorem}\label{th:transitivity}
+% Assume that $\lfctx{\Gamma_1,x_0:A_0,\Gamma_2}$ and
+% $\lfchecktype{\Gamma_1}{M_0}{A_0}$ have derivations, and let $\theta$ be
+% the substitution $\{ \langle x_0, M_0,\erase{A_0} \rangle \}$. 
+% %
+% Then there is a $\Gamma'_2$ such that
+% $\hsub{\theta}{\Gamma_2}{\Gamma'_2}$ and $\lfctx{\Gamma_1,\Gamma'_2}$
+% have derivations. 
+% %
+% Further,
+% \begin{enumerate}
+%   \item if $\lfkind{\Gamma_1,x_0:A_0,\Gamma_2}{K}$ has a derivation,
+%     then there is a $K'$ such that $\hsub{\theta}{K}{K'}$ and
+%     $\lfkind{\Gamma_1,\Gamma'_2}{K'}$ have derivations;
+
+%   \item if $\lftype{\Gamma_1,x_0:A_0,\Gamma_2}{A}$ has a derivation,
+%     then there is an $A'$ such that $\hsub{\theta}{A}{A'}$ and
+%     $\lftype{\Gamma_1,\Gamma'_2}{A'}$ have derivations; and
+
+%   \item if $\lfchecktype{\Gamma_1,x_0:A_0,\Gamma_2}{M}{A}$ has a
+%     derivation (for some well-formed type $A$), there is an $A'$ and
+%     an $M'$ such that $\hsub{\theta}{A}{A'}$, $\hsub{\theta}{M}{M'}$,
+%     and $\lfchecktype{\Gamma_1,\Gamma_2'}{M'}{A'}$ have derivations.
+% \end{enumerate}
+% \end{theorem}
+
+A system for reasoning about LF derivability will need to build in the
+ability to analyze judgements of the form $\lfchecktype{\Gamma}{M}{A}$.
+%
+Such an analysis can be driven by the structure of the type $A$.
+%
+The decomposition when $A$ is of the form $\typedpi{x_1}{A_1}{A_2}$
+has an obvious form.
+%
+Theorem~\ref{th:atomictype}, which is proved
+in~\cite{nadathur21arxiv}, provides the basis for the analysis when
+$A$ is an atomic type.  
+
+\begin{theorem}\label{th:atomictype}
+Let $\Gamma$ be a context such that $\lfctx{\Gamma}$ has a derivation.
+%
+Then $\lfsynthtype{\Gamma}{R}{A'}$  has a derivation if and only if
+
+\begin{enumerate}
+\item $R$ is of the form $(c \app M_1 \app \ldots\app M_n)$ for some
+    \[c:\typedpi{y_1}{A_1}{\ldots \typedpi{y_n}{A_n}{A}} \in \Sigma\] or
+    of the form $(x \app M_1 \app \ldots\app M_n)$ for some
+    \[x:\typedpi{y_1}{A_1}{\ldots \typedpi{y_n}{A_n}{A}} \in \Gamma,\]
+    
+  \item there is a sequence of types $A'_1,\ldots,A'_n$ such that, for
+    $1\leq i\leq n$, there are derivations for
+    \[\hsub{\{\langle y_1, M_1,\erase{A_1}\rangle, \ldots,
+             \langle y_{i-1}, M_{i-1}, \erase{A_{i-1}} \rangle\}}
+          {A_i}
+          {A'_i}\]
+    and $\lfchecktype{\Gamma}{M_i}{A'_i}$, and
+         
+  \item there are derivations for
+    \[\hsub{\{\langle y_1, M_1,\erase{A_1}\rangle, \ldots,
+                 \langle y_n, M_n, \erase{A_n} \rangle\}}
+              {A}
+              {A'}\]
+    and $\lftype{\Gamma}{A'}$.
+  \end{enumerate}
+  Moreover, if $\lfsynthtype{\Gamma}{R}{A'}$ has a derivation of
+  height $h$, then the derivations that are known to exist for
+  $\lfchecktype{\Gamma}{M_i}{A'_i}$  for $1 \leq i \leq n$ by clause
+  (2) must all have height less than $h$.
+  \end{theorem}
+
+Theorem~\ref{th:atomictype} gives us an alternative means for deriving
+judgements of the form $\lfchecktype{\Gamma}{R}{P}$, in the process
+dispensing with judgements of the form $\lfsynthtype{\Gamma}{R}{A}$.
+%
+Note also that in \emph{analyzing} judgements of the form
+$\lfchecktype{\Gamma}{R}{P}$, it is necessary to consider only
+\emph{shorter} derivations for subterms of $R$.
+%
+This observation provides a means for arguing inductively on the
+heights of LF derivations.  
+

@@ -1,0 +1,361 @@
+%uncategorized
+\newcommand{\logic}{$\mathcal{L}_{LF}$}
+\newcommand{\dom}[1]{dom\left({#1}\right)}
+\newcommand{\perm}[2]{{#1}.{#2}}
+\newcommand{\ie}{{\rm i.e.}}
+\newcommand{\emptybb}{\cdot}
+\newcommand{\emptycs}{\cdot}
+\newcommand{\declinst}[4]{#1 \vdash #2 \leadsto_{\mbox{\sl \scriptsize dec}} #3 \bowtie #4}
+\newcommand{\bsinst}[4]{#1 ; #2 \vdash #3 \leadsto_{\mbox{\sl \scriptsize bs}} #4}
+\newcommand{\csinst}[4]{#1 ; #2 \vdash #3 \leadsto_{\mbox{\sl \scriptsize cs}} #4}
+\newcommand{\csinstone}[4]{#1 ; #2 \vdash #3 \leadsto^1_{\mbox{\sl \scriptsize cs}} #4}
+
+\newcommand{\emptycb}{\cdot}
+
+%annotations & validity
+\newcommand{\fvalid}[2]{#1 \vDash #2\ \mbox{\tt valid}}
+\newcommand{\fatmann}[3]{{\fatm{#1}{#2}}^{#3}}
+\newcount\counter
+\newcommand{\repeatchar}[2]{
+  \ifnum #2>-1
+    \counter=0
+    \loop
+      \ifnum \counter<#2
+        #1
+        \advance \counter+1
+    \repeat
+  \fi
+}
+\newcommand{\ltann}[2][1]{{#2}^{\repeatchar{*}{#1}}}
+\newcommand{\ltannaux}[2]{{#2}^{*^{#1}}}
+\newcommand{\eqann}[2][1]{{#2}^{\repeatchar{@}{#1}}}
+\newcommand{\eqannaux}[2]{{#2}^{@^{#1}}}
+\newcommand{\assn}[3]{#1\lbrack{#2}\mapsfrom{#3}\rbrack}
+
+%lf expressions
+\newcommand{\typedpi}[3]{\Pi {#1}{:}{#2}.{\mkern 3mu} #3}
+\newcommand{\type}{\mbox{Type}}
+\newcommand{\lflam}[2]{\lambda {#1}.{\mkern 3mu} #2}
+\newcommand{\imp}[2]{#1\rightarrow #2}
+\newcommand{\app}{\ }
+\newcommand{\emptysig}{\cdot}
+\newcommand{\emptyctx}{\cdot}
+
+%lf judgments
+\newcommand{\lfprove}[3][\Sigma]{#2 \vdash_{#1} #3}
+\newcommand{\lfsynthkind}[4][\Sigma]{\lfprove[#1]{#2}{#3\Rightarrow #4}}
+\newcommand{\lfsynthtype}[4][\Sigma]{\lfprove[#1]{#2}{#3\Rightarrow #4}}
+\newcommand{\lfchecktype}[4][\Sigma]{\lfprove[#1]{#2}{#3\Leftarrow #4}}
+\newcommand{\lfkind}[3][\Sigma]{#2 \vdash_{#1} #3\ \mbox{\tt kind}}
+\newcommand{\lftype}[3][\Sigma]{#2 \vdash_{#1} #3\ \mbox{\tt type}}
+\newcommand{\lfctx}[2][\Sigma]{\vdash_{#1} #2\ \mbox{\tt ctx}}
+\newcommand{\lfsig}[1]{\vdash {#1}\ \mbox{\tt sig}}
+
+%substitutions
+\newcommand{\domain}[1]{\mbox{\sl dom}(#1)}
+\newcommand{\range}[1]{\mbox{\sl rng}(#1)}
+\newcommand{\context}[1]{\mbox{\sl ctx}(#1)}
+\newcommand{\supportof}[1]{\mbox{\sl supp}(#1)}
+\newcommand{\varsof}[1]{\mbox{\sl vars}(#1)} 
+\newcommand{\subst}[2]{#2[#1]}
+\newcommand{\hsubst}[2]{#2\llbracket {#1} \rrbracket} 
+\newcommand{\hsubstseq}[3]{#3\llbracket {#2} \rrbracket_{#1}}
+\newcommand{\hsubr}[4][]{#3\llbracket {#2} \rrbracket^r_{#1} = #4}
+\newcommand{\hsub}[4][]{#3\llbracket {#2} \rrbracket_{#1} = #4}
+\newcommand{\pr}[2]{(#1,#2)}
+\newcommand{\comp}[2]{#1\circ #2}
+\newcommand{\size}[1]{size\left({#1}\right)}
+\newcommand{\seqsub}[2]{\langle{#1},{#2}\rangle}
+\newcommand{\ctxvarminus}[2]{#1_{#2}}
+\newcommand{\restrict}[2]{#1|_{#2}}
+\newcommand{\extsubst}[2]{#2[#1]}
+
+% typing judgements used in theorems about hereditary substitution
+% These have to be different from typing judgements for LF and other
+% things
+\newcommand{\STLCGamma}{\Theta}
+\newcommand{\aritysum}[2]{#1 \uplus #2}
+\newcommand{\stlcder}{\vdash_{\mbox{\sl \scriptsize at}}}
+\newcommand{\stlctyjudg}[3]{#1 \stlcder #2 : #3}
+\newcommand{\stlcderr}{\vdash^r_{\mbox{\sl\scriptsize at}}}
+\newcommand{\stlctyjudgr}[3]{#1 \stlcderr #2 : #3}
+\newcommand{\kindingder}{\vdash_{\mbox{\sl \scriptsize ak}}}
+\newcommand{\wftype}[2]{#1 \kindingder #2\ \mbox{\sl type}}
+\newcommand{\kindingderp}{\vdash^p_{\mbox{\sl \scriptsize ak}}}
+\newcommand{\akindingp}[3]{#1 \kindingderp #2 : #3}
+\newcommand{\declder}{\vdash_{\mbox{\sl \scriptsize dec}}}
+\newcommand{\wfdecls}[3]{#1 \declder #2 \Rightarrow #3}
+\newcommand{\bsder}{\vdash_{\mbox{\sl \scriptsize bs}}}
+\newcommand{\abstyping}[1]{\vdash #1\ \mbox{\sl blk schema}}
+\newcommand{\csder}{\vdash_{\mbox{\sl \scriptsize cs}}}
+\newcommand{\acstyping}[1]{\vdash #1\ \mbox{\sl ctx schema}}
+\newcommand{\wfctx}[3]{#1;#2 \vdash #3\ \mbox{\sl context}}
+
+
+%% %well formedness 
+%% \newcommand{\wfform}[3]{#1;#2\longrightarrow #3 \mbox{ formula}}
+%% \newcommand{\wfseq}[4]{#1;#2;#3\longrightarrow #4 \mbox{ sequent}}
+%% \newcommand{\wftype}[2]{#1\longrightarrow #2 \mbox{ type}}
+%% \newcommand{\wfctx}[3]{#1;#2\longrightarrow #3 \mbox{ context}}
+%% \newcommand{\wfschema}[2]{#1\longrightarrow #2 \mbox{ schema}}
+%% \newcommand{\wfblock}[2]{#1\longrightarrow #2 \mbox{ block schema}}
+
+% arity typing
+\newcommand{\noms}{\mathcal{N}} % context of nominal constant arity types
+\newcommand{\atyarr}{\rightarrow}
+%% \newcommand{\atyp}[2]{{#1}\vdash{#2}}
+\newcommand{\arr}[2]{#1\rightarrow #2}
+\newcommand{\erase}[1]{{(#1)}^{-}}
+\newcommand{\oty}{o}
+\newcommand{\ctxty}[2]{#1\lbrack {#2}\rbrack}
+\newcommand{\ctxvarty}[3]{#1\!\uparrow\!#2 : #3}
+\newcommand{\ctxvar}[2]{#1\!\uparrow\!#2}
+\newcommand{\supp}[1]{\text{supp}\left({#1}\right)}
+\newcommand{\support}[2]{\text{supp}_{#1}\left({#2}\right)}
+\newcommand{\initctx}{\STLCGamma_0}
+\newcommand{\ctxsanstype}[1]{#1^-}
+\newcommand{\suppsanstype}[1]{#1^-}
+
+%lf raising
+\newcommand{\raisety}[2]{\Pi {#2}.{\mkern 3mu} #1}
+\newcommand{\lfraise}[2]{({#1}\app {#2})}
+\newcommand{\raisetm}[2]{\lambda {#2}.{\mkern 3mu} #1}
+
+%formulas
+\newcommand{\of}[2]{#1:#2}
+\newcommand{\emptyce}{\cdot}
+\newcommand{\fatm}[2]{\left\{#1 \vdash #2\right\}}
+\newcommand{\fand}[2]{#1\wedge #2}
+\newcommand{\myfor}[2]{#1\vee #2}
+\newcommand{\fimp}[2]{#1\supset #2}
+\newcommand{\fall}[2]{\forall #1. #2}
+\newcommand{\fexists}[2]{\exists #1. #2}
+\newcommand{\genericq}{\mathcal{Q}}
+\newcommand{\fgeneric}[2]{\genericq #1. #2}
+\newcommand{\fctx}[3]{\Pi\,#1 : #2.#3}
+\newcommand{\feq}[2]{#1=#2}
+\newcommand{\ftrue}{\top}
+\newcommand{\ffalse}{\bot}
+
+%decomposition of types
+\newcommand{\tydecomp}[3][\mathbb{N}]{\mbox{\sl Check}_{#1}\left({#2};{#3}\right)}
+\newcommand{\typdecomp}[4]{\mbox{\sl Decompose}\left(#1,#2, #3, #4\right)}
+\newcommand{\typdecompsans}{\mbox{\sl Decompose}} 
+%% \newcommand{\typdecomp}[4]{\mbox{\sl Check}_a\left(#1;#2; #3; #4\right)}
+%% \newcommand{\atypdecomp}[5]{\mbox{\sl Check}_p\left(#1;#2; #3; #4; #5\right)}
+
+%sequents
+\newcommand{\seq}[5]{#1;#2;#3;#4\longrightarrow #5}
+\newcommand{\seqsans}[3][\mathbb{N}]{#1;\emptyset;\emptyset;#2\longrightarrow#3}
+\newcommand{\seqsansfmlas}[3]{#1;#2;#3;}
+\newcommand{\seqsansctxts}[2]{#1\longrightarrow#2}
+%\newcommand{\seqsans}[3][\mathbb{N}]{#1;\cdot; \cdot; #2\longrightarrow #3}
+\newcommand{\ctxinst}[4]{#1;#2\vdash \csinst{#3}{#4}} 
+\newcommand{\schemainst}[3]{#1\vdash_{c} #2:#3}
+\newcommand{\blockinst}[3]{#2\in_{#1}^{b}#3}
+\newcommand{\subs}[2]{#1(#2)}
+\newcommand{\setand}[2]{#1, #2}
+
+%equivalence
+\newcommand{\cctxr}[2]{#1 |_{#2}}
+\newcommand{\formeq}[4]{#1 \vdash #3 \equiv_{#2} #4}
+\newcommand{\ctxeq}[4]{#1 \vdash #3 \equiv_{#2} #4}
+\newcommand{\formequiv}[3]{#1 \vdash #2 \equiv #3}
+\newcommand{\streq}[4]{#1 \vdash #3 \succeq_{#2} #4}
+
+%rule names
+\newcommand{\ind}{\mbox{\sl ind}}
+\newcommand{\cut}{\mbox{\sl cut}}
+\newcommand{\atmR}{\mbox{\sl atmR}}
+\newcommand{\id}{\mbox{\sl id}}
+\newcommand{\absR}{\mbox{\sl atm-abs-R}}
+\newcommand{\annabsR}{\mbox{\sl atm-abs-R}^*}
+\newcommand{\absL}{\mbox{\sl atm-abs-L}}
+\newcommand{\annabsL}{\mbox{\sl atm-abs-L}^*}
+\newcommand{\appR}{\mbox{\sl atm-app-R}}
+\newcommand{\annappR}{\mbox{\sl atm-app-R}^*}
+\newcommand{\appL}{\mbox{\sl atm-app-L}}
+\newcommand{\annappL}{\mbox{\sl atm-app-L}^*}
+\newcommand{\topR}{\mbox{\sl $\top$-R}}
+\newcommand{\botL}{\mbox{\sl $\bot$-L}}
+\newcommand{\ctxR}{\mbox{\sl $\Pi$-R}}
+\newcommand{\ctxL}{\mbox{\sl $\Pi$-L}}
+\newcommand{\allR}{\mbox{\sl $\forall$-R}}
+\newcommand{\allL}{\mbox{\sl $\forall$-L}}
+\newcommand{\existsR}{\mbox{\sl $\exists$-R}}
+\newcommand{\existsL}{\mbox{\sl $\exists$-L}}
+\newcommand{\impR}{\mbox{\sl $\supset$-R}}
+\newcommand{\impL}{\mbox{\sl $\supset$-L}}
+\newcommand{\andR}{\mbox{\sl $\wedge$-R}}
+\newcommand{\andL}{\mbox{\sl $\wedge$-L$_i$}}
+\newcommand{\orR}{\mbox{\sl $\vee$-R$_i$}}
+\newcommand{\orL}{\mbox{\sl $\vee$-L}}
+\newcommand{\lfwk}{\mbox{\sl LF-wk}}
+\newcommand{\lfstr}{\mbox{\sl LF-str}}
+\newcommand{\lfperm}{\mbox{\sl LF-perm}}
+\newcommand{\lfinst}{\mbox{\sl LF-inst}}
+\newcommand{\sweak}{\mbox{\sl ctx-wk}}
+\newcommand{\sstr}{\mbox{\sl ctx-str}}
+\newcommand{\weakening}{\mbox{\sl wk}}
+\newcommand{\contraction}{\mbox{\sl cont}}
+
+% updated cases generation
+\newcommand{\emptyseq}{\mbox{\sl nil}}
+\newcommand{\consseq}[2]{ #1 :: #2}
+%\newcommand{\ctxflat}[2]{\overline{({#1})_{#2}}}
+\newcommand{\blockflat}[1]{\overline{#1}}
+\newcommand{\addblksans}{\mbox{\sl AddBlock}}
+\newcommand{\addblk}[7]{\addblksans(#1,#2,#3,#4,#5,#6,#7)}
+\newcommand{\allblks}[3]{\mbox{\sl AllBlocks}(#1,#2,#3)}
+\newcommand{\implheadssans}{\mbox{\sl ImplicitHeads}}
+\newcommand{\implheads}[2]{\implheadssans(#1,#2)}
+\newcommand{\namessans}{\mbox{\sl NamesLsts}}
+\newcommand{\names}[3]{\namessans(#1,#2,#3)}
+\newcommand{\headssans}{\mbox{\sl Heads}}
+\newcommand{\hds}[2]{\headssans(#1,#2)}
+\newcommand{\decompseqsans}{\mbox{\sl ReduceSeq}}
+%\newcommand{\decompseq}[3]{\decompseqsans\left({#2}, #1, {#3}\right)}
+\newcommand{\decompseq}[2]{\decompseqsans\left({#2}, #1\right)} 
+\newcommand{\newseqsans}{\mbox{\sl NewSeq}}
+\newcommand{\newseq}[4]{\newseqsans_{#1}\left({#2},\ {#3},\ {#4}\right)}
+\newcommand{\makecasessans}{\mbox{\sl Cases}}
+\newcommand{\makecases}[3][\fatm{G}{R:P}]{\makecasessans\left({#2}, #1, #3\right)}
+\newcommand{\casessans}{\mbox{\sl AllCases}}
+\newcommand{\casesfn}[2][\fatm{G}{R:P}]{\casessans \left(#2, #1\right)}
+
+%unification
+\newcommand{\unif}[3]{\left\langle{#1}, {#2}, {#3}\right\rangle}
+\newcommand{\eqn}[2]{{#1}={#2}}
+\newcommand{\solun}[2]{\langle{#1},{#2}\rangle}
+\newcommand{\permute}[2]{{#1}.{#2}}
+\newcommand{\inv}[1]{{#1}^{-1}}
+
+%well formedness 
+\newcommand{\wfform}[3]{#1;#2 \vdash #3\ \mbox{\sl fmla}}
+\newcommand{\wfseq}[5][\mathbb{N}]{\seq[#1]{#2}{#3}{#4}{#5} \mbox{ sequent}}
+%\newcommand{\wftype}[2]{#1\longrightarrow #2 \mbox{ type}}
+%\newcommand{\wfschema}[2]{#1\longrightarrow #2 \mbox{ schema}}
+\newcommand{\wfctxvarty}[3]{#1 ; #2 \vdash #3 \mbox{ ctx-ty}}
+\newcommand{\wfblock}[3]{#1\vdash\csinstone{}{}{#2}{#3}}
+\newcommand{\wfctxvarctx}[2]{#1\vdash #2 \mbox{\sl ctx-var-context}}
+\newcommand{\ctxtyinst}[5]{#1;#2; #3 \vdash #4 \leadsto_{\mbox{\sl \scriptsize csty}} #5}
+
+
+%LF rule names
+\newcommand{\sigempty}{\mbox{\sl\small SIG\_EMPTY }}
+\newcommand{\sigterm}{\mbox{\sl\small SIG\_TERM}}
+\newcommand{\sigfam}{\mbox{\sl\small SIG\_FAM}}
+\newcommand{\ctxempty}{\mbox{\sl\small CTX\_EMPTY}}
+\newcommand{\ctxterm}{\mbox{\sl\small CTX\_TERM}}
+\newcommand{\canonkindtype}{\mbox{\sl\small CANON\_KIND\_TYPE}}
+\newcommand{\canonkindpi}{\mbox{\sl\small CANON\_KIND\_PI}}
+\newcommand{\canonfamatom}{\mbox{\sl\small CANON\_FAM\_ATOM}}
+\newcommand{\canonfampi}{\mbox{\sl\small CANON\_FAM\_PI}}
+\newcommand{\atomfamconst}{\mbox{\sl\small ATOM\_FAM\_CONST}}
+\newcommand{\atomfamapp}{\mbox{\sl\small ATOM\_FAM\_APP}}
+\newcommand{\canontermatom}{\mbox{\sl\small CANON\_TERM\_ATOM}}
+\newcommand{\canontermlam}{\mbox{\sl\small CANON\_TERM\_LAM}}
+\newcommand{\atomtermvar}{\mbox{\sl\small ATOM\_TERM\_VAR}}
+\newcommand{\atomtermconst}{\mbox{\sl\small ATOM\_TERM\_CONST}}
+\newcommand{\atomtermapp}{\mbox{\sl\small ATOM\_TERM\_APP}}
+
+%Adelfa tactics
+\newcommand{\tintros}{\mbox{\tt intros}}
+\newcommand{\tsearch}{\mbox{\tt search}}
+\newcommand{\tsplit}{\mbox{\tt split}}
+\newcommand{\tleft}{\mbox{\tt left}}
+\newcommand{\tright}{\mbox{\tt right}}
+\newcommand{\tassert}{\mbox{\tt assert}}
+\newcommand{\tapply}{\mbox{\tt apply}}
+\newcommand{\tind}{\mbox{\tt induction}}
+\newcommand{\texists}{\mbox{\tt exists}}
+\newcommand{\tcase}{\mbox{\tt case}}
+\newcommand{\tweak}{\mbox{\tt weaken}}
+\newcommand{\tstr}{\mbox{\tt strengthen}}
+\newcommand{\tpermute}{\mbox{\tt permutectx}}
+\newcommand{\tinst}{\mbox{\tt inst}}
+\newcommand{\tundo}{\mbox{\tt undo}}
+\newcommand{\tskip}{\mbox{\tt skip}}
+\newcommand{\tabort}{\mbox{\tt abort}}
+
+%stlc example
+\newcommand{\stlcarr}[2]{#1 \shortrightarrow #2}
+\newcommand{\stlcempty}{\langle\rangle}
+\newcommand{\stlclam}[3]{\lambda #1:#2. #3}
+\newcommand{\stlcapp}[2]{#1\ #2}
+\newcommand{\stlcoftype}[3]{#1 \vdash #2 : #3}
+\newcommand{\tpty}{\mbox{\sl tp}}
+\newcommand{\unittm}{\mbox{\sl unit}}
+\newcommand{\arrtm}{\mbox{\sl arr}}
+\newcommand{\tmty}{\mbox{\sl tm}}
+\newcommand{\emptytm}{\mbox{\sl empty}}
+\newcommand{\lamtm}{\mbox{\sl lam}}
+\newcommand{\apptm}{\mbox{\sl app}}
+\newcommand{\ofty}{\mbox{\sl of}}
+\newcommand{\ofemptytm}{\mbox{\sl of\_empty}}
+\newcommand{\ofapptm}{\mbox{\sl of\_app}}
+\newcommand{\oflamtm}{\mbox{\sl of\_lam}}
+\newcommand{\eqty}{\mbox{\sl eq}}
+\newcommand{\refltm}{\mbox{\sl refl}} 
+
+%arith example
+\newcommand{\natty}{\mbox{\sl nat}}
+\newcommand{\plusty}{\mbox{\sl plus}}
+\newcommand{\ztm}{\mbox{\sl z}}
+\newcommand{\stm}{\mbox{\sl s}}
+\newcommand{\plusztm}{\mbox{\sl plus\_z}}
+\newcommand{\plusstm}{\mbox{\sl plus\_s}}
+
+%cut example
+\newcommand{\intseq}[2]{#1 \Rightarrow #2}
+\newcommand{\propty}{\mbox{\sl prop}}
+\newcommand{\toptm}{\mbox{\sl top}}
+\newcommand{\imptm}{\mbox{\sl imp}}
+\newcommand{\andtm}{\mbox{\sl and}}
+\newcommand{\hypty}{\mbox{\sl hyp}}
+\newcommand{\concty}{\mbox{\sl conc}}
+\newcommand{\inittm}{\mbox{\sl init}}
+\newcommand{\toprtm}{\mbox{\sl topR}}
+\newcommand{\andltm}{\mbox{\sl andL}}
+\newcommand{\andrtm}{\mbox{\sl andR}}
+\newcommand{\impltm}{\mbox{\sl impL}}
+\newcommand{\imprtm}{\mbox{\sl impR}}
+
+%POPLmark example
+\newcommand{\tyty}{\mbox{\sl ty}}
+\newcommand{\toptytm}{\mbox{\sl top}}
+\newcommand{\arrowtm}{\mbox{\sl arrow}}
+\newcommand{\alltm}{\mbox{\sl all}}
+\newcommand{\boundty}{\mbox{\sl bound}}
+\newcommand{\subty}{\mbox{\sl sub}}
+\newcommand{\stoptm}{\mbox{\sl sa-top}}
+\newcommand{\srefltm}{\mbox{\sl sa-refl-tvar}}
+\newcommand{\stranstm}{\mbox{\sl sa-trans-tvar}}
+\newcommand{\sarrowtm}{\mbox{\sl sa-arrow}}
+\newcommand{\salltm}{\mbox{\sl sa-all}}
+\newcommand{\varty}{\mbox{\sl var}}
+\newcommand{\bvarty}{\mbox{\sl bound\_var}}
+
+%intro examples
+\newcommand{\hastype}{\mbox{\sl hastype}}
+\newcommand{\unique}{\mbox{\sl unique}}
+
+%conclusion examples
+\newcommand{\redty}{\mbox{\sl reduce}}
+\newcommand{\redappltm}{\mbox{\sl red-app-1}}
+\newcommand{\redapprtm}{\mbox{\sl red-app-2}}
+\newcommand{\redlamtm}{\mbox{\sl red-lam}}
+\newcommand{\redbetatm}{\mbox{\sl red-beta}}
+\newcommand{\appty}{\mbox{\sl append}}
+\newcommand{\listty}{\mbox{\sl list}}
+\newcommand{\niltm}{\mbox{\sl nil}}
+\newcommand{\constm}{\mbox{\sl cons}}
+
+%Theorems & proofs
+\newcommand{\case}[1]{\noindent{\bf Case: #1}\\\noindent}
+\numberwithin{figure}{section}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+
