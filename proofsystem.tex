@@ -1,28 +1,77 @@
 \section{A Proof System for the Logic}\label{sec:proofsystem}
 
-We now describe a sequent calculus that supports arguments of validity
-of the kind outlined in Section~\ref{ssec:example}.
-%
-We aim only to present the spirit of this calculus, leaving
-its detailed consideration again to other
-work~\cite{nadathur21arxiv,southern21phd}.
-%
-We note also that the main goal for the calculus is to provide
-a means for sound and effective reasoning rather than to be complete
-with respect to the semantics described for \logic.
-%
-We begin by explaining the structure of sequents before proceeding to
-a discussion of the inference rules.
+\begin{figure*}
+\begin{tabular}{c}
+\infer
+      {\seq{\mathbb{N}}
+           {\Psi}
+           {\Xi}
+           {\Omega}
+           {\mathcal{Q}_1.
+             \fimp{F_1}{\fimp{\ldots}
+                       {\mathcal{Q}_{k-1}.
+                         \fimp{F_{k-1}}
+                              {\mathcal{Q}_k.
+                                  \fimp{\fatm{G}{M:A}}
+                                        {\fimp{\ldots}{F_n}}}}}}}
+      %% {\deduce{\mathcal{Q}_1.( 
+      %%             \fimp{F_1}{\fimp{\ldots}
+      %%                             {\mathcal{Q}_{k-1}}.(
+      %%                               \fimp{F_{k-1}}
+      %%                                    {\mathcal{Q}_k.
+      %%                                       (\fimp{\eqannaux{i}{\fatm{G}{M:A}}}
+      %%                                             {\fimp{\ldots}{F_n}})})})}
+      %%         {\seq{\mathbb{N}}
+      %%              {\Psi}
+      %%              {\Xi}
+      %%              {\Omega,
+      %%                      \mathcal{Q}_1.( 
+      %%                         \fimp{F_1}{\fimp{\ldots}
+      %%                                         {\mathcal{Q}_{k-1}}.(
+      %%                                          \fimp{F_{k-1}}
+      %%                                               {\mathcal{Q}_k.
+      %%                                                 (\fimp{\ltannaux{i}{\fatm{G}{M:A}}}
+      %%                                                       {\fimp{\ldots}{F_n}})})})}
+      %%              {}}}
+              {\seq{\mathbb{N}}
+                   {\Psi}
+                   {\Xi}
+                   {\Omega,
+                           \mathcal{Q}_1. 
+                              \fimp{F_1}{\fimp{\ldots}
+                                              {\mathcal{Q}_{k-1}}.
+                                               \fimp{F_{k-1}}
+                                                    {\mathcal{Q}_k.
+                                                      \fimp{\ltann{\fatm{G}{M:A}}}
+                                                            {\fimp{\ldots}{F_n}}}}}
+                   {\mathcal{Q}_1. 
+                  \fimp{F_1}{\fimp{\ldots}
+                                  {\mathcal{Q}_{k-1}}.
+                                    \fimp{F_{k-1}}
+                                         {\mathcal{Q}_k.
+                                            \fimp{\eqann{\fatm{G}{M:A}}}
+                                                  {\fimp{\ldots}{F_n}}}}}}
+\end{tabular}
+\caption{The Induction Rule}
+\label{fig:induction}
+\end{figure*}
 
-\subsection{The Structure of Sequents}\label{ssec:sequents}
+We present here a high-level view of a proof system that we have developed
+to provide a sound and effective means for mechanizing the kind of
+validity arguments that we sketched in Section~\ref{ssec:logic-examples}.
+%
+We begin by explaining the structure of judgements considered by the
+proof system before proceeding to a sketch of its inference rules.
 
-A sequent, written as $\seq{\mathbb{N}}{\Psi}{\Xi}{\Omega}{F}$, is a
-judgement that relates a finite subset $\mathbb{N}$ of nominal
-constants with associated arity types, a finite set $\Psi$ of term
-variables also with associated arity types, a finite set $\Xi$ of
-context variables with types of the kind described below, a finite set
-$\Omega$ of \emph{assumption formulas} and a \emph{conclusion} or
-\emph{goal} formula $F$; 
+\subsection{The Judgements for the Proof System}\label{ssec:sequents}
+
+The proof system is oriented around deriving \emph{sequents} of the
+form $\seq{\mathbb{N}}{\Psi}{\Xi}{\Omega}{F}$, where $\mathbb{N}$
+finite set of nominal constants, $\Psi$ is a finite set of term
+variables with associated arity types, $\Xi$ is a a finite set of
+context variables with types of the kind described below, 
+$\Omega$ is a finite set of \emph{assumption formulas}, and $F$ is a
+\emph{conclusion} or \emph{goal} formula; 
 here, $\mathbb{N}$ is the \emph{support set} of the
 sequent, $\Psi$ is its \emph{eigenvariables context} and $\Xi$ is its
 \emph{context variables context}.
@@ -34,21 +83,24 @@ sense explained in Section~\ref{ssec:formulas}.
 %
 The members of $\Xi$ have the form
 $\ctxvarty{\Gamma}{\mathbb{N}_{\Gamma}}{\ctxty{\mathcal{C}}{G_1,\ldots,G_n}}$,
-where $\mathbb{N}_{\Gamma}$ is a collection of nominal constants,
+where $\mathbb{N}_{\Gamma} \subseteq \mathbb{N}$,
 $\mathcal{C}$ is a context schema, and $G_1,\ldots,G_n$ is a listing of
 instances of block schemas from $\mathcal{C}$ in which the types assigned to
-nominal constants are well-formed with respect to $\Sigma$,
-$\mathbb{N} \setminus \mathbb{N}_\Gamma$, and $\Xi$. 
+nominal constants are well-formed with respect to the arity context
+determined by $\Sigma$, $\mathbb{N} \setminus \mathbb{N}_\Gamma$, and $\Xi$. 
 %
 This ``typing'' of the variable $\Gamma$ is intended to limit its
 range to closed contexts obtained by interspersing instances of block
 schemas from $\mathcal{C}$ in which nominal constants from
 $\mathbb{N}_\Gamma$ do not appear between instances of
-$G_1,\ldots,G_n$ obtained by substituting terms formed from $\Sigma$
-and nominal constants not appearing in the support set of the
-sequent for the variables in $\Psi$; the substitutions for the
-variables in $\Psi$ must respect arity typing and the LF types in the
-resulting context must be well-typed in an arity sense. 
+$G_1,\ldots,G_n$ obtained by substituting terms for the variables in
+$\Psi$ that are well-formed at the required arity types with respect
+to the arity context determined by $\Sigma$ and the collection of
+nominal constants not appearing in the support set of the
+sequent.\footnote{Intuitively, the substitutions permitted for
+  $\Gamma$ will be instances of the context schema $\mathcal{C}$ in
+  which the nominal constants in $\mathbb{N}_\Gamma$ do not appear and
+  that contain instances of $G_1,\ldots,G_n$ in the order listed.}
 
 The basic notion of meaning for sequents is one that pertains to
 closed sequents, i.e. ones of the form
@@ -69,46 +121,29 @@ The goal of showing that a formula $F$ whose nominal
 constants are contained in the set $\mathbb{N}$ is valid now reduces to
 showing the validity of the sequent $\seq{\mathbb{N}}{\emptyset}{\emptyset}{\emptyset}{F}$.
 
-\subsection{The Rules for Deriving Sequents}\label{ssec:proofrules}
+\subsection{The Proof Rules}\label{ssec:proofrules}
 
-The sequent calculus comprises two kinds of rules: those that pertain
+The proof system comprises two kinds of rules: those that pertain
 to the logical symbols and structural aspects of sequents and those
 that encode the interpretation of atomic formulas as assertions of
-derivability in LF. We discuss the rules under these categories below,
-focusing mainly on the latter kind of rules. For paucity of space, we
-do not present the rules explicitly but rather discuss their intuitive
-content. We also note that all the rules that we describe have been
-%GN: leaving out the thesis reference here because some of the proofs
-%there have gaps and we don't want people to throw that at us.
-shown to be sound~\cite{nadathur21arxiv}.
-
-\subsubsection{Structural and Logical Rules}
-
-The calculus includes the usual contraction and weakening rules
-pertaining to assumption formulas.
+derivability in LF.
 %
-Also included are rules for adding and removing entries from the
-support set and the eigenvariables and context variables contexts when
-these additions do not impact the overall well-formedness of
-sequents.
+In the first category are included the usual contraction and weakening
+rules (that are also extended to treat the support set and the
+eigenvariables and context variables contexts), and the cut rule that
+facilitates the use of well-formed formulas as lemmas.
 %
-Finally, the cut rule, which facilitates the use of well-formed
-formulas as lemmas, is also present in the collection.
-
-The most basic logical rule is that of an axiom.
-%
-The main deviation from the usual form for this is the
-incorporation of the invariance of LF derivability under permutations
-of the names of context variables; this is realized in our proof
-system via a notion of equivalence of formulas under permutations of nominal
-constants.   
-%
-The rules for the connectives and quantifiers take the expected form.
-%
-The only significant point to note is that eigenvariables that are
+The logical rules also take the expected form with two noteworthy
+aspects: in the statement of axioms, it is necessary to incorporate
+the equivalence of atomic formulas under a suitable form of
+permutation of nominal constants, and the eigenvariables that are
 introduced for (essential) universal quantifiers must be
 raised over the support set of the sequent to correctly reflect
-dependencies given our interpretation of sequents~\cite{miller92jsc}.
+dependencies in the context of our interpretation of
+sequents~\cite{miller92jsc}. 
+
+The rules in the second category constitute the truly novel part of
+the proof system and they are discussed in more detail below.
 
 \subsubsection{The Treatment of Atomic Formulas}
 
@@ -123,27 +158,18 @@ contains a context variable then its type annotation must be changed
 to prohibit the occurrence of $n$ in its instantiations.
 %
 If $A$ is an atomic type and $\fatm{G}{M : A}$ is the goal formula,
-then the corresponding rule allows a step to be taken in the
-validation of the typing judgement; specifically, if $M$ is the term
-$(h\app M_1\app\ldots\app M_n)$ where $h$ is a constant or a nominal
-constant to which $\Sigma$ or $G$ assigns the
-LF type $\typedpi{x_1}{A_1}{\ldots\typedpi{x_n}{A_n}{A'}}$ and $A$ is
-identical to $\hsubst{\{\langle x_1,M_1\erase{A_1} \rangle,
-  \ldots,\langle x_n,M_n,\erase{A_n}\rangle\}}{A'}$, then the rule
-leads to the consideration of the derivation of sequents in which
-the goal formula is changed to $\fatm{G}{\hsubst{\{\langle x_1,M_1\erase{A_1} \rangle,
-  \ldots,\langle x_{i-1},M_{i-1},\erase{A_{i-1}}\rangle\}}{M_i}}$ for
-$1 \leq i \leq n$. Note that if $G$ begins with a context variable $\Gamma$,
-  then the assignments in the blocks in the ``type'' of $\Gamma$ are
-  considered to be assignments in $G$.
-
-The most contentful part of the treatment of atomic formulas
-is when the formula $\fatm{G}{M : A}$ in which $A$ is an atomic type
-appears as an assumption formula in the sequent. 
+then the corresponding rule embodies the use of
+Theorem~\ref{th:atomictype} in taking a step in the
+validation of the typing judgement.
 %
-The example in Section~\ref{ssec:example} demonstrates the
-\emph{case analysis} style of reasoning that we would want to capture 
-in the proof rule; we must identify all the possibilities for the valid
+Note that if $G$ begins with a context variable $\Gamma$, then the
+blocks in the ``type'' of $\Gamma$ must also be considered in
+determining the type assignment to the head of $M$. 
+
+When the formula $\fatm{G}{M : A}$ in which $A$ is an atomic type
+appears as an assumption formula in the sequent, then the rule must
+capture a \emph{case analysis} style of reasoning: 
+we must identify all the possibilities for the valid
 closed instances of this formula and analyze the validity of the
 sequent based on these instances.
 %
@@ -162,8 +188,7 @@ possible instantiations for the term variables that may appear in
 $\fatm{G}{M : A}$. 
 
 The first problem is solved in the enunciation of the rule through an
-\emph{incremental elaboration} of a context variable that is driven by
-the atomic formula under scrutiny.
+\emph{incremental elaboration} of a context variable.
 %
 Suppose that $G$ begins with the context variable $\Gamma$
 corresponding to which there is the declaration
@@ -182,24 +207,20 @@ To account for this, the rule considers all the possible instances for
 the block declarations constituting $\mathcal{C}$ and all possible
 locations for such blocks in the sequence $G_1,\ldots,G_k$.
 %
-We note that the number of such instances that have to be examined 
-is finite because it suffices to consider exactly one representative
-for any nominal constant that does not appear in the support set of
-the sequent; this observation follows from the invariance of LF typing
-judgements under permutations of names for the variables bound in the
-context. 
+We note that the invariance of atomic formulas under permutations of
+nominal constants allows the number of such instances that have to be
+examined to be kept finite and, in practice, small.
 
 The second problem is addressed by first describing a notion
 of unification that will ensure that all closed instances will be
 considered and then identifying the idea of a \emph{covering set of
-unifiers} that enables us to avoid an exhaustive consideration.
+unifiers} that obviates an exhaustive consideration.
 %
-To elaborate a little on this approach, suppose that the (nominal)
-constant $h$ with LF type
-$\typedpi{x_1}{A_1}{\ldots\typedpi{x_n}{A_n}{A'}}$ has been identified 
-as the candidate head for $M$.
+To elaborate, suppose that the (nominal) constant $h$ with
+type $\typedpi{x_1}{A_1}{\ldots\typedpi{x_n}{A_n}{A'}}$ has been
+identified  as the candidate head for $M$.
 %
-Further, for $1\leq i \leq n$, let $t_i$ be terms representing fresh
+For $1\leq i \leq n$, let $t_i$ be terms representing fresh
 variables raised over the support set of the sequent.\footnote{If
   $n_1,\ldots,n_{\ell}$ is a listing of $\mathbb{N}$ then, for $1 \leq
   i \leq n$, $t_i$ is the term $(z_i\app n_1\app \cdots\app n_{\ell})$
@@ -208,17 +229,18 @@ variables raised over the support set of the sequent.\footnote{If
 Then, based on the notion of unification described, for each
 substitution $\theta$ that unifies 
 $(h\app t_1\app\ldots\app t_n)$ and $M$ on the one hand and $A$ and
-$\hsubst{\{\langle x_1,t_1\erase{A_1} \rangle,
+$\hsubst{\{\langle x_1,t_1,\erase{A_1} \rangle,
   \ldots,\langle x_n,t_n,\erase{A_n}\rangle\}}{A'}$ on the other, 
 it suffices to consider the derivability of the sequent that results
-from replacing $\fatm{G}{M:A}$ in the original sequent with the set of
+from replacing $\fatm{G}{M:A}$ with the set of
 formulas 
-\[
-  \{\fatm{G}{t_i : \hsubst{\{\langle x_1,t_1\erase{A_1} \rangle,
+\begin{tabbing}
+\quad\=\qquad\qquad\qquad\qquad\qquad\=\kill
+\>$\{\fatm{G}{t_i : \hsubst{\{\langle x_1,t_1,\erase{A_1} \rangle,
   \ldots,\langle
-  x_{i-1},t_{i-1},\erase{A_{i-1}}\rangle\}}{A_i}}\ \vert\ 1 \leq i \leq
-  n\}
-\]
+  x_{i-1},t_{i-1},\erase{A_{i-1}}\rangle\}}{A_i}}\ \vert$\\
+\>\>$1 \leq i \leq n\}$
+\end{tabbing}
 and then applying the substitution $\theta$.
 %
 However, this will still result in a a large number of cases since the
@@ -230,108 +252,49 @@ to a small subset of unifiers while still preserving soundness.
 
 \subsubsection{Induction over the Heights of LF Derivations}
 
-The example in Subsection~\ref{ssec:example} also illustrates the role
-of induction over the heights of LF typing derivations in informal
-reasoning. 
-%
-This kind of induction is realized in our sequent calculus by using an
+The ability to reason inductively over the heights of LF typing
+derivations is realized in the proof system by using an
 annotation based scheme inspired by Abella~\cite{baelde14jfr,
   gacek09phd}.
 %
 Specifically, we add to the syntax two additional forms of atomic
-formulas: $\eqannaux{i}{\fatm{G}{M:A}}$ and
-$\ltannaux{i}{\fatm{G}{M:A}}$.
+formulas: $\eqann{\fatm{G}{M:A}}$ and
+$\ltann{\fatm{G}{M:A}}$.
 %
 These represent, respectively, a formula that has an LF derivation of
 some given height and another formula of strictly smaller height; the
 latter formula is obtained typically by an unfolding step embodied in
 the use of a case analysis rule.
 % 
-The index $i$ on the annotation symbol is used to identify distinct pairs of 
-$@$ and $*$ annotations.
-%
-The induction proof rule then has the form
-
-\[
-\infer[induction]
-      {\seq{\mathbb{N}}
-           {\Psi}
-           {\Xi}
-           {\Omega}
-           {\mathcal{Q}_1.(
-             \fimp{F_1}{\fimp{\ldots}
-                       {\mathcal{Q}_{k-1}.(
-                         \fimp{F_{k-1}}
-                              {\mathcal{Q}_k.
-                                  (\fimp{\fatm{G}{M:A}}
-                                        {\fimp{\ldots}{F_n}})})}})}}
-      {\deduce{\mathcal{Q}_1.( 
-                  \fimp{F_1}{\fimp{\ldots}
-                                  {\mathcal{Q}_{k-1}}.(
-                                    \fimp{F_{k-1}}
-                                         {\mathcal{Q}_k.
-                                            (\fimp{\eqannaux{i}{\fatm{G}{M:A}}}
-                                                  {\fimp{\ldots}{F_n}})})})}
-              {\seq{\mathbb{N}}
-                   {\Psi}
-                   {\Xi}
-                   {\Omega,
-                           \mathcal{Q}_1.( 
-                              \fimp{F_1}{\fimp{\ldots}
-                                              {\mathcal{Q}_{k-1}}.(
-                                               \fimp{F_{k-1}}
-                                                    {\mathcal{Q}_k.
-                                                      (\fimp{\ltannaux{i}{\fatm{G}{M:A}}}
-                                                            {\fimp{\ldots}{F_n}})})})}
-                   {}}}
-\]
+The induction rule then has the form shown in Figure~\ref{fig:induction}
 where $\mathcal{Q}_i$ represent a sequence of context quantifiers or universal
-term quantifiers and the annotations $@^i$ and $*^i$ must not already appear
-in the conclusion sequent.
+term quantifiers and the annotations $@$ and $*$ must not already appear
+in the conclusion sequent.\footnote{Nested induction can be
+  accommodated by generalizing the annotations to the form $@^i$ and
+  $*^i$ for any natural number $i$.}
 %
 The premise of this proof rule can be viewed as providing a proof schema for
 constructing an argument of validity for any particular height $m$, and so by 
 an inductive argument we can conclude that the formula will be valid 
 regardless of the derivation height.
 %
-This idea is made precise in a proof of soundness for the
-rule~\cite{nadathur21arxiv,southern21phd}.
+For this proof rule to be useful in reasoning, the case analysis rule
+must be generalized to permit a movement from a formula
+annotated with $@$ to ones annotated by $*$ when reduced, an ability
+justified by Theorem~\ref{th:atomictype}. 
 
-For this proof rule to be useful in reasoning, we will need a form of
-case analysis which permits us to move from a formula annotated with
-$@$ to one annotated by $*$ when reduced. 
-%
-Such a mechanism is built into the proof system and is used in the
-examples in the next section.
+\subsubsection{Rules Encoding LF Metatheorems}
 
-\subsubsection{Rules Encoding Metatheorems Concerning LF Derivability}
-
-Typing judgements in LF admit several metatheorems that are useful in
-reasoning about specifications: if $\lfchecktype{\Gamma}{M}{A}$ has a
-derivation then so does $\lfchecktype{\Gamma, x : A'}{M}{A}$ for a fresh
-variable $x$ and any well-formed type $A'$ (weakening); if
-$\lfchecktype{\Gamma, x : A'}{M}{A}$ has a derivation and $x$ does not
-appear in $M$ or $A$ then so also does $\lfchecktype{\Gamma}{M}{A}$
-(strengthening); if $\lfchecktype{\Gamma_1, x_1 : A_1, x_2 : A_2, \Gamma_2}{M}{A}$ has
-a derivation and $x_1$ does not appear in $A_2$ then 
-$\lfchecktype{\Gamma_1, x_2 : A_1, x_1 : A_1, \Gamma_2}{M}{A}$ must have a derivation
-(permutation); and if $\lfchecktype{\Gamma_1}{M'}{A'}$ and
-$\lfchecktype{\Gamma_1,x:A',\Gamma_2}{M}{A}$ have derivations then there
-must be a derivation for
-$\lfchecktype{\Gamma_1,\hsubst{\{\langle x,M',\erase{A'}\rangle\}}{\Gamma_2}}
-         {\hsubst{\{\langle x,M',\erase{A'}\rangle\}}{M}}
-         {\hsubst{\{\langle x,M',\erase{A'}\rangle\}}{A}}$ (substitution). 
+LF admit several metatheorems such as weakening, strengthening,
+permutation and substitution, that are useful in
+reasoning about specifications.
 %
-Moreover, in the first three cases, the derivations are structurally
-similar, e.g. they have the same heights.
-%
-These metatheorems are built into the sequent calculus via (sound)
-axioms.
+These metatheorems are built into the proof system via (sound) axioms.
 %
 For example, (one version of) the strengthening metatheorem is encoded
 in the axiom
 \[
-\infer[\lfstr]
+\infer
       {\seq{\mathbb{N}}{\Psi}{\Xi}{\Omega}{\fimp{\fatm{G,n:B}{M:A}}{\fatm{G}{M:A}}}}
       {\begin{array}{c}
          n\mbox{ does not appear in }M\mbox{, } A\mbox{, or the explicit bindings in }G
