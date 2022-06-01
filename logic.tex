@@ -796,12 +796,29 @@ Let $F$ be a formula such that $\wfform{\noms \cup
 Theorems~\ref{th:schemainst} and \ref{th:subst-formula} ensure the
 coherence of this definition. 
 
+As previously noted, the particular choices for bound variable names
+in the kinds, types and terms that comprise LF expressions are
+considered irrelevant. 
+%
+Typing derivations transform expressions with bound variables into
+ones where variables are ostensibly free but in fact bound implicitly
+in the associated contexts.
+%
+The lack of importance of name choices is reflected in this case in an
+invariance in the validity of typing judgements under a suitable
+renaming of variables appearing in the judgements.
+%
+In \logic, where context variables are represented by nominal
+constants, this property translates into an invariance of formula
+validity under permutations of nominal constants. 
+%
+A complete presentation of this idea is to be found
+in~\cite{nadathur21arxiv}. 
+
 \subsection{Understanding the Notion of Validity}\label{ssec:logic-examples}
 
-In the examples we consider below, we assume an instantiation of
-\logic\ 
-based on the signature presented in
-Section~\ref{ssec:informal-reasoning}.
+In the examples below, we assume \logic\ to be parameterized by the
+signature presented in Section~\ref{ssec:informal-reasoning}.
 %
 Obviously, any LF typing judgement based on that signature is expressable
 in the logic.
@@ -829,18 +846,16 @@ is not.
 %
 Note that the arity type associated with the quantified variable in
 each of these formulas provides only a rough constraint on the
-instantiation needed to verify the validity of the formula; to do
-this, the instance must also satisfy LF typeability requirements
+instantiation needed to verify the validity of the formula; 
+the instance must also satisfy LF typeability requirements
 represented by formula that appears within the scope of the
 quantifier.
 
 Wellformedness conditions for formulas ensure only that the terms
-appearing within formulas satisfy canonicity requirements, i.e. that
-these terms are in $\beta$-normal form and that variables and
-constants are applied to as many arguments as they can take.
+appearing within formulas satisfy canonicity requirements.
 %
-Arity typing does not distinguish between terms in different
-expression categories.
+Specifically, arity typing does not distinguish between terms in
+different expression categories.
 %
 For example, the formula
 \begin{tabbing}
@@ -865,15 +880,9 @@ However, it is not valid because $\lfctx{n : \tmty, n : \tpty}$ is not
 derivable in LF under the described interpretation for nominal
 constants.
 %
-An implication of these observations is that a naive form of weakening 
-does not hold with respect to the encoding of LF derivability in
-\logic; additional conditions similar to this described in 
-Theorem~\ref{th:weakening} must be verified for this principle to
-apply.
 
-To provide a more substantive example of the kinds of properties that
-can be expressed in \logic, let us consider the formal statement of
-the property of uniqueness of type assignments for the STLC.
+For a more substantive example, let us consider the formal statement
+of the property of uniqueness of type assignments for the STLC.
 %
 As noted in Section~\ref{ssec:informal-reasoning}, this property is
 best described in a form that considers typing expressions in
@@ -892,8 +901,7 @@ Observe that a context that instantiates this schema will not
 provide a variable that can be used to construct an atomic term of
 type $\tpty$.
 %
-Thus, the strengthening property for expressions representing types
-that is expressed by the formula 
+Thus, the formula 
 \begin{tabbing}
   \qquad\=\kill
   \> $\fctx{\Gamma}{c}
@@ -901,16 +909,16 @@ that is expressed by the formula
                  {\fimp{\fatm{\Gamma}{t : \tpty}}
                    {\fatm{\emptyce}{t:\tpty}}}}$.
 \end{tabbing}
-should hold.
+that states a strengthening property for expressions representing
+types must be valid. 
 %
-We can in fact easily show this formula to be valid by
+We can in fact show this to be the case by
 using Theorem~\ref{th:atomictype} and an induction on the height of
 the derivation for $\fatm{G}{t : \tpty}$ for a closed term $t$ and a
 closed instance $G$ of $c$.
 %
-Using the validity of this formula, we can also easily argue that the
-following formula that expresses a strengthening property pertaining to
-the equality of types is also valid:
+Using the validity of this formula, we can also argue that the
+formula 
 \begin{tabbing}
   \ \ \=\kill
   \> $\fctx{\Gamma}{c}
@@ -920,6 +928,7 @@ the equality of types is also valid:
                  {\fimp{\fatm{\Gamma}{d : \eqty\app t_1\app t_2}}
                  {\fatm{\emptyce}{d:\eqty\app t_1\app t_2}}}}}}$.
 \end{tabbing}
+is valid.
 
 The property of uniqueness of type assignments for the STLC can be expressed through the
 following formula:
@@ -986,179 +995,179 @@ imposed by the context schema.
 Note that the form of $d_1$ also constrains the form of $e$ in all the
 cases, a fact that is used implicitly in the analysis outlined.
 
-\subsection{Nominal Constants and Invariance Under Permutations}
-\label{ssec:permutations}
+%% \subsection{Nominal Constants and Invariance Under Permutations}
+%% \label{ssec:permutations}
 
-The particular choices for bound variable names in the kinds, types
-and terms that comprise LF expressions are considered irrelevant.
-%
-This understanding is built in concretely through the notion of
-$\alpha$-conversion that renders equal expressions that differ
-only in the names used for such variables.
-%
-Typing derivations transform expressions with bound variables into
-ones where variables are ostensibly free but in fact bound implicitly
-in the associated contexts.
-%
-The lack of importance of name choices is reflected in this case in an
-invariance in the validity of typing judgements under a suitable
-renaming of variables appearing in the judgements.
-%
-In a situation where context variables are represented by nominal
-constants, this property can be expressed via an invariance of formula
-validity under permutations of nominal constants as we describe here.
-%
-We begin with a definition of the notions of permutations of
-nominal constants and their applications to expressions. 
-\begin{definition}%[Permutation]
+%% The particular choices for bound variable names in the kinds, types
+%% and terms that comprise LF expressions are considered irrelevant.
+%% %
+%% This understanding is built in concretely through the notion of
+%% $\alpha$-conversion that renders equal expressions that differ
+%% only in the names used for such variables.
+%% %
+%% Typing derivations transform expressions with bound variables into
+%% ones where variables are ostensibly free but in fact bound implicitly
+%% in the associated contexts.
+%% %
+%% The lack of importance of name choices is reflected in this case in an
+%% invariance in the validity of typing judgements under a suitable
+%% renaming of variables appearing in the judgements.
+%% %
+%% In a situation where context variables are represented by nominal
+%% constants, this property can be expressed via an invariance of formula
+%% validity under permutations of nominal constants as we describe here.
+%% %
+%% We begin with a definition of the notions of permutations of
+%% nominal constants and their applications to expressions. 
+%% \begin{definition}%[Permutation]
 
-A permutation of the nominal constants is an arity type preserving
-bijection from $\noms$ to $\noms$ that differs from the identity
-map at only a finite number of constants. 
-%
-The permutation that maps $n_1,\ldots, n_m$ to $n_1',\ldots,n_m'$,
-respectively, and is the identity everywhere else is written as 
-$\{n_1'/n_1,\ldots,n_m'/n_m\}$.
-%
-The support of a permutation $\pi=\{n_1'/n_1,\ldots,n_m'/n_m\}$, 
-denoted by $\supp{\pi}$, is the collection of nominal constants
-$\{n_1,\ldots, n_m\}$ or, identically, $\{n_1',\ldots,n_m'\}$.
-%
-Every permutation $\pi$ has an obvious inverse that is written as
-$\inv{\pi}$. 
-\end{definition}
+%% A permutation of the nominal constants is an arity type preserving
+%% bijection from $\noms$ to $\noms$ that differs from the identity
+%% map at only a finite number of constants. 
+%% %
+%% The permutation that maps $n_1,\ldots, n_m$ to $n_1',\ldots,n_m'$,
+%% respectively, and is the identity everywhere else is written as 
+%% $\{n_1'/n_1,\ldots,n_m'/n_m\}$.
+%% %
+%% The support of a permutation $\pi=\{n_1'/n_1,\ldots,n_m'/n_m\}$, 
+%% denoted by $\supp{\pi}$, is the collection of nominal constants
+%% $\{n_1,\ldots, n_m\}$ or, identically, $\{n_1',\ldots,n_m'\}$.
+%% %
+%% Every permutation $\pi$ has an obvious inverse that is written as
+%% $\inv{\pi}$. 
+%% \end{definition}
 
-\begin{definition}%[Permutation Application]
-The application of a permutation $\pi$ to an expression $E$ of a
-variety of kinds is described below and is denoted in all cases by
-$\permute{\pi}{E}$.
-%
-If $E$ is a term, type, or kind then the
-application consists of replacing each nominal constant $n$ that
-appears in $E$ with $\pi(n)$. 
-%
-If $E$ is a context then the application of $\pi$ to $E$
-replaces each explicit binding $n:A$ in $E$ with 
-$\pi(n):\permute{\pi}{A}$.
-%
-If $E$ is an LF judgement $\mathcal{J}$ then the permutation is applied
-to each component of the judgement in the way described above.
-%
-If $E$ is a formula then the permutation is applied to its component parts.
-%
-The application of $\pi$ to a term variables substitution
-$\{\langle x_1,M_1,\alpha_1\rangle,\ldots,
-   \langle x_n,M_n,\alpha_n\rangle\}$
-yields the substitution 
-$\{\langle x_1,\permute{\pi}{M_1},\alpha_1\rangle,\ldots,
-   \langle x_n,\permute{\pi}{M_n},\alpha_n\rangle\}$.
-%
-The application of $\pi$ to a context variables substitution
-$\{G_1/\Gamma_1,\ldots, G_n/\Gamma_n\}$ yields
-$\{\permute{\pi}{G_1}/\Gamma_1,\ldots, \permute{\pi}{G_n}/\Gamma_n\}$.
-\end{definition}
+%% \begin{definition}%[Permutation Application]
+%% The application of a permutation $\pi$ to an expression $E$ of a
+%% variety of kinds is described below and is denoted in all cases by
+%% $\permute{\pi}{E}$.
+%% %
+%% If $E$ is a term, type, or kind then the
+%% application consists of replacing each nominal constant $n$ that
+%% appears in $E$ with $\pi(n)$. 
+%% %
+%% If $E$ is a context then the application of $\pi$ to $E$
+%% replaces each explicit binding $n:A$ in $E$ with 
+%% $\pi(n):\permute{\pi}{A}$.
+%% %
+%% If $E$ is an LF judgement $\mathcal{J}$ then the permutation is applied
+%% to each component of the judgement in the way described above.
+%% %
+%% If $E$ is a formula then the permutation is applied to its component parts.
+%% %
+%% The application of $\pi$ to a term variables substitution
+%% $\{\langle x_1,M_1,\alpha_1\rangle,\ldots,
+%%    \langle x_n,M_n,\alpha_n\rangle\}$
+%% yields the substitution 
+%% $\{\langle x_1,\permute{\pi}{M_1},\alpha_1\rangle,\ldots,
+%%    \langle x_n,\permute{\pi}{M_n},\alpha_n\rangle\}$.
+%% %
+%% The application of $\pi$ to a context variables substitution
+%% $\{G_1/\Gamma_1,\ldots, G_n/\Gamma_n\}$ yields
+%% $\{\permute{\pi}{G_1}/\Gamma_1,\ldots, \permute{\pi}{G_n}/\Gamma_n\}$.
+%% \end{definition}
 
-The following theorem expresses the property of interest
-concerning LF judgements cast in the form relevant to \logic. 
-%
-\begin{theorem}\label{th:perm-lf}
-Let LF judgements and derivations be recast in the form discussed
-earlier in this section: variables that are bound in a context are
-represented by nominal constants and the rules \canonkindpi,
-\canonfampi\ and \canontermlam\ introduce fresh nominal constants into
-contexts and replace variables in kinds, types and terms with these
-constants.
-%
-In this context, let $\mathcal{J}$ be an LF judgement which has a
-derivation. 
-%
-Then for any permutation $\pi$, $\permute{\pi}{\mathcal{J}}$ is derivable.
-%
-Moreover, the structure of this derivation is the same as that for
-$\mathcal{J}$.
-\end{theorem} 
-\begin{proof}
-This proof is by induction on the derivation for $\mathcal{J}$.
-%
-Perhaps the only observation worthy of note is that the freshness of
-nominal constants used in \canonkindpi, \canonfampi, and
-\canontermlam\ rules is preserved under permutations of nominal
-constants. 
-\end{proof}
-%
-The above observation underlies the main theorem of this section.
-%
-\begin{theorem}\label{th:perm-form}
-Let $F$ be a closed formula and let $\pi$ be a permutation.
-%
-Then $F$ is valid if and only if $\permute{\pi}{F}$ is valid.
-\end{theorem}
-\begin{proof}
-Noting that $\inv{\pi}$ is also a permutation and that
-$\permute{\inv{\pi}}{\permute{\pi}{F}}$ is $F$, it suffices to prove
-the claim in only one direction.
-%
-We do this by induction on the structure of $F$.
+%% The following theorem expresses the property of interest
+%% concerning LF judgements cast in the form relevant to \logic. 
+%% %
+%% \begin{theorem}\label{th:perm-lf}
+%% Let LF judgements and derivations be recast in the form discussed
+%% earlier in this section: variables that are bound in a context are
+%% represented by nominal constants and the rules \canonkindpi,
+%% \canonfampi\ and \canontermlam\ introduce fresh nominal constants into
+%% contexts and replace variables in kinds, types and terms with these
+%% constants.
+%% %
+%% In this context, let $\mathcal{J}$ be an LF judgement which has a
+%% derivation. 
+%% %
+%% Then for any permutation $\pi$, $\permute{\pi}{\mathcal{J}}$ is derivable.
+%% %
+%% Moreover, the structure of this derivation is the same as that for
+%% $\mathcal{J}$.
+%% \end{theorem} 
+%% \begin{proof}
+%% This proof is by induction on the derivation for $\mathcal{J}$.
+%% %
+%% Perhaps the only observation worthy of note is that the freshness of
+%% nominal constants used in \canonkindpi, \canonfampi, and
+%% \canontermlam\ rules is preserved under permutations of nominal
+%% constants. 
+%% \end{proof}
+%% %
+%% The above observation underlies the main theorem of this section.
+%% %
+%% \begin{theorem}\label{th:perm-form}
+%% Let $F$ be a closed formula and let $\pi$ be a permutation.
+%% %
+%% Then $F$ is valid if and only if $\permute{\pi}{F}$ is valid.
+%% \end{theorem}
+%% \begin{proof}
+%% Noting that $\inv{\pi}$ is also a permutation and that
+%% $\permute{\inv{\pi}}{\permute{\pi}{F}}$ is $F$, it suffices to prove
+%% the claim in only one direction.
+%% %
+%% We do this by induction on the structure of $F$.
 
-The desired result follows easily from
-Theorem~\ref{th:perm-lf} and the relationship of validity to LF
-derivability when $F$ is atomic.
-%
-The cases where $F$ is $\ftrue$ or $\ffalse$ are trivial and the
-ones in which $F$ is $\fimp{F_1}{F_2}$, $\fand{F_1}{F_2}$ or
-$\myfor{F_1}{F_2}$ are easily argued with recourse to the induction
-hypothesis and by noting that the permutation distributes to the
-component formulas.
+%% The desired result follows easily from
+%% Theorem~\ref{th:perm-lf} and the relationship of validity to LF
+%% derivability when $F$ is atomic.
+%% %
+%% The cases where $F$ is $\ftrue$ or $\ffalse$ are trivial and the
+%% ones in which $F$ is $\fimp{F_1}{F_2}$, $\fand{F_1}{F_2}$ or
+%% $\myfor{F_1}{F_2}$ are easily argued with recourse to the induction
+%% hypothesis and by noting that the permutation distributes to the
+%% component formulas.
 
-In the case where $F$ is $\fctx{\Gamma}{\mathcal{C}}{F'}$, we first
-note that if $\csinst{\noms}{\emptyset}{\mathcal{C}}{G}$ has a
-derivation then
-$\csinst{\noms}{\emptyset}{\mathcal{C}}{\permute{\inv{\pi}}{G}}$ must also
-have one.
-%
-From this and the validity of $F$ it follows that
-$\subst{\{(\permute{\inv{\pi}}{G})/\Gamma\}}{F'}$ must be valid.
-%
-Moreover, $\subst{\{(\permute{\inv{\pi}}{G})/\Gamma\}}{F'}$ has the same
-structural complexity as $F'$.
-%
-Hence, by the induction hypothesis,
-$\permute{\pi}{(\subst{\{\permute{(\inv{\pi}}{G})/\Gamma\}}{F'})}$ is valid.
-%
-Noting that this formula is the same as
-$\subst{\{G/\Gamma\}}{(\permute{\pi}{F'})}$ and that
-$\fctx{\Gamma}{\mathcal{C}}{\permute{\pi}{F'}}$ is identical to 
-$\permute{\pi}{(\fctx{\Gamma}{\mathcal{C}}{F'})}$, the validity of
-$\permute{\pi}{F}$ easily follows.
+%% In the case where $F$ is $\fctx{\Gamma}{\mathcal{C}}{F'}$, we first
+%% note that if $\csinst{\noms}{\emptyset}{\mathcal{C}}{G}$ has a
+%% derivation then
+%% $\csinst{\noms}{\emptyset}{\mathcal{C}}{\permute{\inv{\pi}}{G}}$ must also
+%% have one.
+%% %
+%% From this and the validity of $F$ it follows that
+%% $\subst{\{(\permute{\inv{\pi}}{G})/\Gamma\}}{F'}$ must be valid.
+%% %
+%% Moreover, $\subst{\{(\permute{\inv{\pi}}{G})/\Gamma\}}{F'}$ has the same
+%% structural complexity as $F'$.
+%% %
+%% Hence, by the induction hypothesis,
+%% $\permute{\pi}{(\subst{\{\permute{(\inv{\pi}}{G})/\Gamma\}}{F'})}$ is valid.
+%% %
+%% Noting that this formula is the same as
+%% $\subst{\{G/\Gamma\}}{(\permute{\pi}{F'})}$ and that
+%% $\fctx{\Gamma}{\mathcal{C}}{\permute{\pi}{F'}}$ is identical to 
+%% $\permute{\pi}{(\fctx{\Gamma}{\mathcal{C}}{F'})}$, the validity of
+%% $\permute{\pi}{F}$ easily follows.
 
-Suppose that $F$ has the form $\fall{x:\alpha}{F'}$.
-%
-We observe here that if
-$\stlctyjudg{\noms \cup \STLCGamma_0}{M}{\alpha}$ has a derivation
-then
-$\stlctyjudg{\noms \cup \STLCGamma_0}{\permute{\inv{\pi}}{M}}{\alpha}$
-has one too and that
-$\permute{\pi}{(\hsubst{\{\langle x,\permute{\inv{\pi}}{M},\alpha\rangle\}}{F'})}$
-is the same formula as
-$\hsubst{\{\langle x,M,\alpha\rangle\}}{(\permute{\pi}{F'})}$.
-%
-Using the definition of validity, the induction hypothesis and the
-fact that permutation distributes to the component formula together
-with the above observations, we may easily conclude that
-$\permute{\pi}{F}$ is valid.
+%% Suppose that $F$ has the form $\fall{x:\alpha}{F'}$.
+%% %
+%% We observe here that if
+%% $\stlctyjudg{\noms \cup \STLCGamma_0}{M}{\alpha}$ has a derivation
+%% then
+%% $\stlctyjudg{\noms \cup \STLCGamma_0}{\permute{\inv{\pi}}{M}}{\alpha}$
+%% has one too and that
+%% $\permute{\pi}{(\hsubst{\{\langle x,\permute{\inv{\pi}}{M},\alpha\rangle\}}{F'})}$
+%% is the same formula as
+%% $\hsubst{\{\langle x,M,\alpha\rangle\}}{(\permute{\pi}{F'})}$.
+%% %
+%% Using the definition of validity, the induction hypothesis and the
+%% fact that permutation distributes to the component formula together
+%% with the above observations, we may easily conclude that
+%% $\permute{\pi}{F}$ is valid.
 
-Finally, suppose that $F$ is of the form $\fexists{x:\alpha}{F'}$.
-%
-Here we note that if
-$\stlctyjudg{\noms \cup \STLCGamma_0}{M}{\alpha}$ has a derivation
-then
-$\stlctyjudg{\noms \cup \STLCGamma_0}{\permute{\pi}{M}}{\alpha}$
-has one too and that
-$\permute{\pi}{(\hsubst{\{\langle x, M,\alpha\rangle\}}{F'})}$
-is the same formula as
-$\hsubst{\{\langle
-  x,\permute{\pi}{M},\alpha\rangle\}}{(\permute{\pi}{F'})}$.
-%
-Using the definition of validity and the induction hypothesis, it is
-now easy to conclude that $\permute{\pi}{F}$ must be valid.
-\end{proof}
+%% Finally, suppose that $F$ is of the form $\fexists{x:\alpha}{F'}$.
+%% %
+%% Here we note that if
+%% $\stlctyjudg{\noms \cup \STLCGamma_0}{M}{\alpha}$ has a derivation
+%% then
+%% $\stlctyjudg{\noms \cup \STLCGamma_0}{\permute{\pi}{M}}{\alpha}$
+%% has one too and that
+%% $\permute{\pi}{(\hsubst{\{\langle x, M,\alpha\rangle\}}{F'})}$
+%% is the same formula as
+%% $\hsubst{\{\langle
+%%   x,\permute{\pi}{M},\alpha\rangle\}}{(\permute{\pi}{F'})}$.
+%% %
+%% Using the definition of validity and the induction hypothesis, it is
+%% now easy to conclude that $\permute{\pi}{F}$ must be valid.
+%% \end{proof}
