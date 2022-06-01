@@ -203,10 +203,15 @@ $\{M_1,\ldots,M_n\}$.
 \end{figure*}
 
 Given a substitution $\theta$ and an expression $E$ that is a kind, a
-type, a canonical term or a context, we wish the expression
+type, or a canonical term, we wish the expression
 $\hsubst{\theta}{E}$ notionally to denote the application of $\theta$
 to $E$.
-%
+%% %
+%% Given a substitution $\theta$ and an expression $E$ that is a kind, a
+%% type, a canonical term or a context, we wish the expression
+%% $\hsubst{\theta}{E}$ notionally to denote the application of $\theta$
+%% to $E$.
+%% %
 However, such an application is not guaranteed to exist.
 %
 We therefore use the expression $\hsub{\theta}{E}{E'}$ to indicate
@@ -232,13 +237,13 @@ terms that appear within $E$.
 This idea is made explicit for types in Figure~\ref{fig:hsubtypes} and its
 elaboration for kinds is similar.
 %
-A substitution is meaningfully applied to a context only when it does
-not replace variables to which the context assigns types and when a
-replacement does not lead to inadvertent capture.
-%
-When these conditions are satisfied, the substitution distributes to
-the types that are assigned to the variables as the rules in
-Figure~\ref{fig:hsubctx} make clear. 
+%% A substitution is meaningfully applied to a context only when it does
+%% not replace variables to which the context assigns types and when a
+%% replacement does not lead to inadvertent capture.
+%% %
+%% When these conditions are satisfied, the substitution distributes to
+%% the types that are assigned to the variables as the rules in
+%% Figure~\ref{fig:hsubctx} make clear. 
 
 
 \begin{figure}[tbhp]
@@ -267,25 +272,25 @@ Figure~\ref{fig:hsubctx} make clear.
 \label{fig:hsubtypes}
 \end{figure}
 
-\begin{figure}[tbhp]
-\begin{tabular}{c}
-  \infer
-    {\hsub{\theta}
-          {\emptyctx}
-          {\emptyctx}}
-    {}
+%% \begin{figure}[tbhp]
+%% \begin{tabular}{c}
+%%   \infer
+%%     {\hsub{\theta}
+%%           {\emptyctx}
+%%           {\emptyctx}}
+%%     {}
 
-\\[10pt]
+%% \\[10pt]
     
-  \infer
-    {\hsub{\theta}{(\Gamma, x:A)}{\Gamma', x:A'}}
-    {x\ \mbox{\rm not free in}\ \domain{\theta} \cup \range{\theta} \qquad
-     \hsub{\theta}{\Gamma}{\Gamma'} \qquad
-     \hsub{\theta}{A}{A'}} 
-\end{tabular}
-\caption{Applying Substitutions to Contexts}
-\label{fig:hsubctx}
-\end{figure}
+%%   \infer
+%%     {\hsub{\theta}{(\Gamma, x:A)}{\Gamma', x:A'}}
+%%     {x\ \mbox{\rm not free in}\ \domain{\theta} \cup \range{\theta} \qquad
+%%      \hsub{\theta}{\Gamma}{\Gamma'} \qquad
+%%      \hsub{\theta}{A}{A'}} 
+%% \end{tabular}
+%% \caption{Applying Substitutions to Contexts}
+%% \label{fig:hsubctx}
+%% \end{figure}
 
 We define a measure on substitutions that is useful in showing that
 their application terminates. 
@@ -299,13 +304,22 @@ in each of its triples.
 The following theorem can be proved by induction first on
 the sizes of substitutions and then on the structures of expressions;
 it would first be proved simultaneously for canonical and atomic terms
-and then extended to types, kinds and contexts. 
+and then extended to types and kinds. 
 %
+%% The following theorem can be proved by induction first on
+%% the sizes of substitutions and then on the structures of expressions;
+%% it would first be proved simultaneously for canonical and atomic terms
+%% and then extended to types, kinds and contexts. 
+%% %
 \begin{theorem}\label{th:uniqueness}
-For any context, kind, type or canonical term $E$ and any substitution
+For any kind, type or canonical term $E$ and any substitution
 $\theta$, it is decidable whether there is an $E'$ such that
 $\hsub{\theta}{E}{E'}$ is derivable.
 %
+%% For any context, kind, type or canonical term $E$ and any substitution
+%% $\theta$, it is decidable whether there is an $E'$ such that
+%% $\hsub{\theta}{E}{E'}$ is derivable.
+%% %
 Moreover, there is at most one $E'$ for which it is derivable.
 %
 Similarly, for any atomic term $R$ and substitution $\theta$, it is

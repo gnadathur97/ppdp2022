@@ -7,36 +7,27 @@ system that has been described using LF.
 %
 The logic would be parameterized by a well-formed LF signature.
 %
-The basic building blocks for the properties that are to be described
-would be typing judgements.
+Typing judgements interpreted via LF derivability would serve as 
+atomic formulas.
 %
-More specifically, the logic would use such judgements as its atomic
-formulas and would interpret them using LF derivability.
-%
-More complex formulas would then be constructed using 
+More complex formulas would be constructed using 
 logical connectives and quantifiers over LF terms.
 %
-As the example in Section~\ref{ssec:informal-reasoning} illustrates,
-it would be necessary to also permit a quantification over LF contexts.
+Quantification would need to be allowed not only over term variables
+but also over variables representing LF contexts. 
 
-To develop an actual logic based on these ideas, we need to describe a
+To develop an actual logic based on these ideas, we must describe a
 more precise correspondence between LF typing judgements and atomic
 formulas. 
 %
-The judgement forms that need to be considered in this context are
-those for typing canonical and atomic terms, \ie, the
-$\lfchecktype{\Gamma}{M}{A}$ and $\lfsynthtype{\Gamma}{R}{A}$ forms. 
+The judgement forms that must considered in this context 
+are $\lfchecktype{\Gamma}{M}{A}$ and $\lfsynthtype{\Gamma}{R}{A}$.
 %
-The main judgement form is in fact the first one: the second form
-serves mainly to explicate judgements of the first kind when the type
-is atomic and, as we have noted already, Theorem~\ref{th:atomictype}
-provides the basis for circumventing such an explicit treatment
-through a special ``focused'' typing rule. 
+The main judgement form is in fact the first one and, as we have just
+noted, Theorem~\ref{th:atomictype} allows us to identify a special
+``focused'' typing rule that obviates the second judgement form. 
 %
-In light of this, it suffices to describe an encoding of only the
-first judgement form.
-%
-The judgement in the LF setting assumes the wellformedness of the
+Judgement of the first kind in LF assume the wellformedness of the
 context $\Gamma$ and the type $A$.
 %
 In the logic, the context and, therefore, also the type can be
@@ -92,7 +83,7 @@ be typed by \emph{context schemas} that are motivated by regular world
 descriptions used in the Twelf
 system~\cite{Pfenning02guide,schurmann00phd}. 
 
-In the rest of this section, we present a logic called \logic\ that
+In the rest of this section, we present the logic \logic\ that
 substantiates the ideas outlined above.
 %
 The first two subsections present the well-formed formulas of \logic and
@@ -104,21 +95,19 @@ validity of such properties.
 %
 The third subsection illuminates this capability through a
 collection of examples.
-%
-The last subsection observes the counterpart in \logic\ of the
-property of irrelevance of the particular names that are chosen for
-the variables bound by the context in an LF judgement.
-%
-The particular expression of this property takes the form of the
-invariance of validity of formulas under permutations of
-nominal constants. 
+%% %
+%% The last subsection observes the counterpart in \logic\ of the
+%% property of irrelevance of the particular names that are chosen for
+%% the variables bound by the context in an LF judgement.
+%% %
+%% The particular expression of this property takes the form of the
+%% invariance of validity of formulas under permutations of
+%% nominal constants. 
 
 \subsection{The Formulas of the Logic}
 
-We begin by considering the representation of LF terms and types in \logic.
-%
-Figure~\ref{fig:logic-terms-and-types} presents the syntax of these
-expressions.
+Figure~\ref{fig:logic-terms-and-types} presents the syntax of the
+expressions in \logic\ that represent LF types and terms.
 %
 As with LF syntax, we use $c$ and $d$ to represent term level
 constants, $a$ and $b$ to represent type level constants and $x$ and
@@ -153,20 +142,17 @@ quantifiers.
 \label{fig:logic-terms-and-types}
 \end{figure}
 
-The logic \logic\ is parameterized by an LF style signature $\Sigma$
-that assigns kinds to type-level constants and types to term-level ones.
-%
-This signature is assumed to be well-formed in the sense described in
+The logic \logic\ is parameterized by a signature $\Sigma$
+that assigns kinds to type-level constants and types to term-level
+ones and that is well-formed in the sense described in
 Section~\ref{sec:lf}.
 %
 The logic also assumes as given a set $\noms$ of nominal constants,
 each specified with an arity type, with a countably infinite supply of
 such constants for each arity type $\alpha$.
 %
-The types of the nominal constants are fixed once and for all by
-$\noms$.
-%
-This allows us to treat sets of such constants ambiguously as
+Since the types of the nominal constants are fixed once and for all by
+$\noms$, we may treat sets of such constants ambiguously as
 collections whose elements are of the form $n : \alpha$ or simply
 $n$. 
 %
@@ -204,7 +190,7 @@ $n$.
 \label{fig:arity-kinding}
 \end{figure}
 
-As explained earlier, expressions in \logic\ will be expected to
+Expressions in \logic\ are expected to
 satisfy typing constraints that check for canonicity.
 %
 At the term level, these constraints will be realized through arity
@@ -264,8 +250,7 @@ In the intended interpretation, such quantifiers are meant to be
 instantiated with context expressions that assign LF types to nominal
 constants. 
 %
-However, it will be necessary to be able to constrain the possible
-instantiations in real applications.
+However, we will want to constrain such instantiations.
 %
 This ability is supported by typing
 context quantifiers using \emph{context schemas} whose structure is
@@ -348,9 +333,7 @@ that are defined by the rules in Figure~\ref{fig:schematyping}.
 \label{fig:formula-syntax}
 \end{figure}
 
-We are finally in a position to describe the formulas of \logic.
-%
-The syntax of these formulas is presented in
+The syntax of the formulas of \logic\ is presented in
 Figure~\ref{fig:formula-syntax}.
 %
 The symbol $\Gamma$ is used in these formulas to represent context
@@ -472,15 +455,15 @@ attention to dependency ordering; assessing
 whether they are used in a manner that respects this ordering is a part
 of the meaning of the atomic formula.
 
-The following theorem, whose proof is obvious, shows that
-the wellformedness judgement for formulas continues to
-hold under the augmentation of the two contexts that  parameterize it. 
-%
-\begin{theorem}\label{th:wfsupset}
-If $\wfform{\STLCGamma}{\Xi}{F}$ has a derivation and $\STLCGamma
-\subseteq \STLCGamma'$ and $\Xi \subseteq \Xi'$, then
-$\wfform{\STLCGamma'}{\Xi'}{F}$ also has a derivation.
-\end{theorem}
+%% The following theorem, whose proof is obvious, shows that
+%% the wellformedness judgement for formulas continues to
+%% hold under the augmentation of the two contexts that  parameterize it. 
+%% %
+%% \begin{theorem}\label{th:wfsupset}
+%% If $\wfform{\STLCGamma}{\Xi}{F}$ has a derivation and $\STLCGamma
+%% \subseteq \STLCGamma'$ and $\Xi \subseteq \Xi'$, then
+%% $\wfform{\STLCGamma'}{\Xi'}{F}$ also has a derivation.
+%% \end{theorem}
 
 \subsection{The Interpretation of Formulas}
 
@@ -561,11 +544,12 @@ that is a subset of $\noms$ and a \emph{term variables context} $\Psi$
 that identifies a finite collection of such variables together with their
 arity types: in combination with  the constants in $\STLCGamma_0$,
 these collections, circumscribe the symbols that can be used in the
-declarations in the context expressions.\footnote{In  
-  determining closed instances of context schemas, $\mathbb{N}$ will
+declarations in the context expressions.\footnote{In 
+  the use of this relation in this paper, $\mathbb{N}$ will
   be $\noms$ and $\Psi$ will be the empty set. The more general form
   for this relation, which includes a parameterization by these sets,
-  will be useful in later sections.} 
+  is needed in the development of the proof system
+  in~\cite{nadathur21arxiv}. We retain that form for consistency.} 
 The relation is written as $\csinst{\mathbb{N}}{\Psi}{\mathcal{C}}{G}$
 and it is defined by the rules in Figure~\ref{fig:ctx-schema}.
 %
@@ -598,6 +582,10 @@ We assume here and elsewhere that the application of a hereditary
 substitution to a sequence of declarations  corresponds to its
 application to the type in each assignment. 
 
+The following theorem, which states a coherence property for the
+instantiation of a context schema, is proved
+in~\cite{nadathur21arxiv}.
+
 \begin{theorem}\label{th:schemainst}
 Let $\mathcal{C}$ and $G$ be a context schema and a context expression
 such that $\acstyping{\mathcal{C}}$ and
@@ -607,47 +595,47 @@ $\mathbb{N} \cup \Psi \cup \STLCGamma_0 \subseteq \STLCGamma$, it is the case th
 $\wfctx{\STLCGamma}{\emptyset}{G}$ has a derivation. 
 \end{theorem}
 
-\begin{proof}
-We first show that for any block declaration
-$\Delta$ and any arity context $\STLCGamma$ such that $\mathbb{N}
-\subseteq \STLCGamma$, if $\wfdecls{\STLCGamma}{\Delta}{\STLCGamma'}$ and
-$\declinst{\mathbb{N}}{\Delta}{G'}{\theta'}$ are derivable for some $\STLCGamma'$
-and $\theta'$, then (a)~$\theta'$ is type preserving with respect to
-$\Theta$, (b)~$\Theta'$ is $\aritysum{\context{\theta'}}{\Theta}$, and
-(c)~each binding in $G'$ is of the form $n : A$ where $n:\erase{A}\in
-\Theta$ and $\wftype{\Theta}{A}$ has a derivation.
-%
-This claim is proved by induction on the derivation of
-$\wfdecls{\STLCGamma}{\Delta}{\STLCGamma'}$; properties (a) and (b)
-are included in the claim because they are useful together with
-Theorem~\ref{th:aritysubs-ty} in showing property (c) in the
-induction step. 
-%
-Next we show, through an easy inductive argument, that if
-$\wfdecls{\STLCGamma_0 \cup \{x_1 : \alpha_1, \ldots,
-                              x_n : \alpha_n\}}
-         {\Delta}
-         {\STLCGamma'}$
-has a derivation and $\STLCGamma$ is such that
-$\mathbb{N} \cup \Psi \cup \STLCGamma_0 \subseteq \STLCGamma$, then, for
-some $\STLCGamma''$, it is the case that 
-$\wfdecls{\aritysum{\{x_1 : \alpha_1, \ldots,x_n : \alpha_n\}}
-                   {\STLCGamma}}           
-         {\Delta}
-         {\STLCGamma''}$
-has a derivation.
-%
-Using Theorem~\ref{th:aritysubs-ty} with these two
-observations, we can show easily that if
-$\abstyping{\{x_1 : \alpha_1,\ldots, x_n : \alpha_n\}\Delta}$ and 
-$\bsinst{\mathbb{N}}{\Psi} 
-        {\{x_1 : \alpha_1,\ldots, x_n : \alpha_n\}\Delta}
-        {G}$ 
-have derivations then for each binding of the form $n:A$ in $G$ it is
-the case that $n:\erase{A} \in \Theta$ and $\wftype{\Theta}{A}$.
-%
-The theorem follows easily from this observation.
-\end{proof}
+%% \begin{proof}
+%% We first show that for any block declaration
+%% $\Delta$ and any arity context $\STLCGamma$ such that $\mathbb{N}
+%% \subseteq \STLCGamma$, if $\wfdecls{\STLCGamma}{\Delta}{\STLCGamma'}$ and
+%% $\declinst{\mathbb{N}}{\Delta}{G'}{\theta'}$ are derivable for some $\STLCGamma'$
+%% and $\theta'$, then (a)~$\theta'$ is type preserving with respect to
+%% $\Theta$, (b)~$\Theta'$ is $\aritysum{\context{\theta'}}{\Theta}$, and
+%% (c)~each binding in $G'$ is of the form $n : A$ where $n:\erase{A}\in
+%% \Theta$ and $\wftype{\Theta}{A}$ has a derivation.
+%% %
+%% This claim is proved by induction on the derivation of
+%% $\wfdecls{\STLCGamma}{\Delta}{\STLCGamma'}$; properties (a) and (b)
+%% are included in the claim because they are useful together with
+%% Theorem~\ref{th:aritysubs-ty} in showing property (c) in the
+%% induction step. 
+%% %
+%% Next we show, through an easy inductive argument, that if
+%% $\wfdecls{\STLCGamma_0 \cup \{x_1 : \alpha_1, \ldots,
+%%                               x_n : \alpha_n\}}
+%%          {\Delta}
+%%          {\STLCGamma'}$
+%% has a derivation and $\STLCGamma$ is such that
+%% $\mathbb{N} \cup \Psi \cup \STLCGamma_0 \subseteq \STLCGamma$, then, for
+%% some $\STLCGamma''$, it is the case that 
+%% $\wfdecls{\aritysum{\{x_1 : \alpha_1, \ldots,x_n : \alpha_n\}}
+%%                    {\STLCGamma}}           
+%%          {\Delta}
+%%          {\STLCGamma''}$
+%% has a derivation.
+%% %
+%% Using Theorem~\ref{th:aritysubs-ty} with these two
+%% observations, we can show easily that if
+%% $\abstyping{\{x_1 : \alpha_1,\ldots, x_n : \alpha_n\}\Delta}$ and 
+%% $\bsinst{\mathbb{N}}{\Psi} 
+%%         {\{x_1 : \alpha_1,\ldots, x_n : \alpha_n\}\Delta}
+%%         {G}$ 
+%% have derivations then for each binding of the form $n:A$ in $G$ it is
+%% the case that $n:\erase{A} \in \Theta$ and $\wftype{\Theta}{A}$.
+%% %
+%% The theorem follows easily from this observation.
+%% \end{proof}
 
 In defining validity for formulas, we will need to consider
 substitutions for context and term variables.
@@ -688,8 +676,8 @@ Note that no check is mandated in the process for clashes in the names
 of nominal constants appearing in the context expression being
 substituted into and the substitution terms. 
 %
-In this respect, this application is unlike that to LF contexts
-that is defined in Figure~\ref{fig:hsubctx}.
+%% In this respect, this application is unlike that to LF contexts
+%% that is defined in Figure~\ref{fig:hsubctx}.
 
 
 \begin{theorem}\label{th:subst-formula}
@@ -736,17 +724,17 @@ the requirements of the first part of the theorem, we will write
 $\hsubst{\theta}{F}$ to denote the $F'$ for which 
 $\hsub{\theta}{F}{F'}$ is derivable.
 %
-As is implicit in the preceding discussion, term and context variables
-substitutions may introduce new nominal constants. 
-%
-If $\theta$ is a term variables substitution, we will write
-$\supportof{\theta}$ to denote the collection of such constants that
-appear in the terms in $\range{\theta}$.
-%
-Similarly, if $\sigma$ is the context variables substitution
-$\{G_1/\Gamma_1,\ldots,G_n/\Gamma_n\}$, 
-we will write $\supportof{\sigma}$ to denote the collection of nominal
-constants that appear in $G_1,\ldots,G_n$.
+%% As is implicit in the preceding discussion, term and context variables
+%% substitutions may introduce new nominal constants. 
+%% %
+%% If $\theta$ is a term variables substitution, we will write
+%% $\supportof{\theta}$ to denote the collection of such constants that
+%% appear in the terms in $\range{\theta}$.
+%% %
+%% Similarly, if $\sigma$ is the context variables substitution
+%% $\{G_1/\Gamma_1,\ldots,G_n/\Gamma_n\}$, 
+%% we will write $\supportof{\sigma}$ to denote the collection of nominal
+%% constants that appear in $G_1,\ldots,G_n$.
 
 A closed atomic formula of the form
 $\fatm{G}{M:A}$ is intended to encode an LF judgement of the
@@ -756,13 +744,12 @@ In this encoding, nominal constants that appear in terms represent
 free variables for which bindings appear in the context in LF
 judgements.
 %
-To substantiate this interpretation, the rules \canonkindpi, \canonfampi\ and
-\canontermlam\ must introduce fresh nominal constants into contexts in
-typing derivations and they must replace bound variables appearing in
-terms and types with these constants. 
+To support this interpretation, the LF typing rules that introduce
+variables into context must use nominal constants instead.
 %
-We use this interpretation to define validity for closed atomic
-formulas with one further qualification: unlike in the LF judgement,
+We build in such a modification to
+define validity for closed atomic formulas with one further
+qualification: unlike in the LF judgement, 
 for the atomic formula we must also ascertain the wellformedness of
 the context and the type.
 %
@@ -774,7 +761,7 @@ Let $F$ be a formula such that $\wfform{\noms \cup
   \STLCGamma_0}{\emptyset}{F}$ is derivable. 
 %
 \begin{itemize}
-\item If $F$ is $\fatm{G}{M:A}$, then it is valid exactly when all of $\lfctx{G}$,
+\item If $F$ is $\fatm{G}{M:A}$, then it is valid exactly when $\lfctx{G}$,
   $\lftype{G}{A}$, and $\lfchecktype{G}{M}{A}$ are derivable in LF,
   under the interpretation of nominal constants as variables bound in
   a context and with the modification of the rules \canonkindpi, \canonfampi\ and
@@ -804,9 +791,10 @@ Let $F$ be a formula such that $\wfform{\noms \cup
   $\hsubst{\{\langle x, M,\alpha\rangle \}}{F}$ is valid for some $M$ such that 
   $\stlctyjudg{\noms \cup \STLCGamma_0}{M}{\alpha}$ is derivable.
 \end{itemize}
+\end{definition}
+
 Theorems~\ref{th:schemainst} and \ref{th:subst-formula} ensure the
 coherence of this definition. 
-\end{definition}
 
 \subsection{Understanding the Notion of Validity}\label{ssec:logic-examples}
 
