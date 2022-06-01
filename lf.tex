@@ -482,7 +482,7 @@ first on the sizes of substitutions and then on the structure of
 terms.
 % 
 The argument proceeds by considering the cases for the term structure,
-first proving (3) and then using this in proving (2). 
+proving (3) firs and using it in proving (2). 
 \end{proof}
 
 We will often consider expressions and substitutions that satisfy the
@@ -494,14 +494,13 @@ write $\hsubst{\theta}{E}$ to denote the unique $E'$ such that
 $\hsub{\theta}{E}{E'}$ has a derivation whenever such a derivation is
 known to exist.
 
+%% The erased form of a type is invariant under substitution. This is the
+%% content of the theorem below whose proof is straightforward.
 
-The erased form of a type is invariant under substitution. This is the
-content of the theorem below whose proof is straightforward.
-
-\begin{theorem}\label{th:erasure}
-For any type $A$ and substitution $\theta$, if $\hsub{\theta}{A}{A'}$
-has a derivation, then $\erase{A} = \erase{A'}$.
-\end{theorem}
+%% \begin{theorem}\label{th:erasure}
+%% For any type $A$ and substitution $\theta$, if $\hsub{\theta}{A}{A'}$
+%% has a derivation, then $\erase{A} = \erase{A'}$.
+%% \end{theorem}
 
 \subsubsection{Wellformedness Judgements}
 
@@ -735,67 +734,116 @@ for kinds and types.
 \subsection{Formalizing Object Systems in LF}\label{ssec:informal-reasoning}
 
 \begin{figure*}[htbp]
-\begin{tabular}{lcl}
-  $\of{\tpty}{\type}$
-  & \qquad & 
-  $\of{\ofemptytm}{\ofty\app\emptytm\app\unittm}$
 
-  \\
-  
-  $\of{\unittm}{\tpty}$
-  & &
+\begin{tabular}{lll}
+  $\of{\tpty}{\type}$\quad &
+     \quad $\of{\tmty}{\type}$ \quad &
+     \quad $\of{\ofty}{\arr{\tmty}{\arr{\tpty}{\type}}}$ \\
 
-  \\
+  $\of{\unittm}{\tpty}$ \quad &
+     \quad $\of{\emptytm}{\tmty}$ \quad &
+     \quad $\of{\eqty}{\arr{\tpty}{\arr{\tpty}{\type}}}$ \\
 
-  $\of{\arrtm}{\arr{\tpty}{\tpty}}$
-  & &
+  $\of{\arrtm}{\arr{\tpty}{\tpty}}$ \quad &
+     \quad $\of{\apptm}{\arr{\tmty}{\arr{\tmty}{\tmty}}}$ \quad & \\
+
+  \quad &
+     \quad
+        $\of{\lamtm}{\arr{\tpty}{\arr{(\arr{\tmty}{\tmty})}{\tmty}}}$ \quad & \\
+\end{tabular}
+
+\begin{tabular}{l}
+  $\of{\ofemptytm}{\ofty\app\emptytm\app\unittm}$ \\
+
   $\of{\ofapptm}
-      {\typedpi{E_1}{\tmty}{\typedpi{E_2}{\tmty}
-      {\typedpi{T_1}{\tpty}{\typedpi{T_2}{\tpty}{}}}}}$
-  \\
-  & &
-    \qquad
-    $\typedpi{D_1}{\ofty\app E_1\app (\arrtm\app T_1\app T_2)}{
-       \typedpi{D_2}{\ofty\app E_2\app T_1}{}}$
+      {\typedpi{E_1}{\tmty}
+               {\typedpi{E_2}{\tmty}
+                        {\typedpi{T_1}{\tpty}
+                                 {\typedpi{T_2}{\tpty}
+                                          {\typedpi{D_1}
+                                                   {\ofty\app E_1\app (\arrtm\app T_1\app T_2)}
+                                                   {\typedpi{D_2}{\ofty\app E_2\app T_1}
+                                                            {\ofty\app(\apptm\app E_1\app E_2)\app T_2}}}}}}}$
 
   \\
-
-  $\of{\tmty}{\type}$
-  & &
-  \qquad $\ofty\app(\apptm\app E_1\app E_2)\app T_2$
-
+  $\of{\oflamtm}
+      {\typedpi{R}{\arr{\tmty}{\tmty}}
+               {\typedpi{T_1}{\tpty}
+                        {\typedpi{T_2}{\tpty}
+                                 {\typedpi{D}{(\typedpi{x}{\tmty}
+                                                       {\typedpi{y}{\ofty\app x\app T_1}
+                                                                {\ofty\app(R\app x)\app T_2}})}
+                                          {\ofty\app(\lamtm\app T_1\app(\lflam{x}{R\app x}))
+                                                 \app(\arrtm\app T_1\app T_2)}}}}}$
   \\
-
-  $\of{\emptytm}{\tmty}$
-  & &
-  \\
-
-  $\of{\apptm}{\arr{\tmty}{\arr{\tmty}{\tmty}}}$ & &
-    $\of{\oflamtm}
-        {\typedpi{R}
-        {\arr{\tmty}{\tmty}}
-        {\typedpi{T_1}{\tpty}{\typedpi{T_2}{\tpty}{}}}}$
-  \\
-
-  $\of{\lamtm}{\arr{\tpty}{\arr{(\arr{\tmty}{\tmty})}{\tmty}}}$
-  &  & 
-  \qquad $\typedpi{D}{(\typedpi{x}{\tmty}
-           {\typedpi{y}{\ofty\app x\app T_1}
-           {\ofty\app(R\app x)\app T_2}})}{}$
-  \\
-  
-  & & \qquad $\ofty\app(\lamtm\app T_1\app(\lflam{x}{R\app x}))
-                              \app(\arrtm\app T_1\app T_2)$
-  \\
-
-  $\of{\ofty}{\arr{\tmty}{\arr{\tpty}{\type}}}$ & & \\  
-
-  $\of{\eqty}{\arr{\tpty}{\arr{\tpty}{\type}}}$ & &
-    $\of{\refltm}{\typedpi{T}{\tpty}{\eqty\app T\app T}}$
+  $\of{\refltm}{\typedpi{T}{\tpty}{\eqty\app T\app T}}$
 \end{tabular}
 \caption{An LF Specification for the Simply-Typed Lambda Calculus}
 \label{fig:stlc-term-spec}
 \end{figure*}
+
+%% \begin{figure*}[htbp]
+%% \begin{tabular}{lcl}
+%%   $\of{\tpty}{\type}$
+%%   & \qquad & 
+%%   $\of{\ofemptytm}{\ofty\app\emptytm\app\unittm}$
+
+%%   \\
+  
+%%   $\of{\unittm}{\tpty}$
+%%   & &
+
+%%   \\
+
+%%   $\of{\arrtm}{\arr{\tpty}{\tpty}}$
+%%   & &
+%%   $\of{\ofapptm}
+%%       {\typedpi{E_1}{\tmty}{\typedpi{E_2}{\tmty}
+%%       {\typedpi{T_1}{\tpty}{\typedpi{T_2}{\tpty}{}}}}}$
+%%   \\
+%%   & &
+%%     \qquad
+%%     $\typedpi{D_1}{\ofty\app E_1\app (\arrtm\app T_1\app T_2)}{
+%%        \typedpi{D_2}{\ofty\app E_2\app T_1}{}}$
+
+%%   \\
+
+%%   $\of{\tmty}{\type}$
+%%   & &
+%%   \qquad $\ofty\app(\apptm\app E_1\app E_2)\app T_2$
+
+%%   \\
+
+%%   $\of{\emptytm}{\tmty}$
+%%   & &
+%%   \\
+
+%%   $\of{\apptm}{\arr{\tmty}{\arr{\tmty}{\tmty}}}$ & &
+%%     $\of{\oflamtm}
+%%         {\typedpi{R}
+%%         {\arr{\tmty}{\tmty}}
+%%         {\typedpi{T_1}{\tpty}{\typedpi{T_2}{\tpty}{}}}}$
+%%   \\
+
+%%   $\of{\lamtm}{\arr{\tpty}{\arr{(\arr{\tmty}{\tmty})}{\tmty}}}$
+%%   &  & 
+%%   \qquad $\typedpi{D}{(\typedpi{x}{\tmty}
+%%            {\typedpi{y}{\ofty\app x\app T_1}
+%%            {\ofty\app(R\app x)\app T_2}})}{}$
+%%   \\
+  
+%%   & & \qquad $\ofty\app(\lamtm\app T_1\app(\lflam{x}{R\app x}))
+%%                               \app(\arrtm\app T_1\app T_2)$
+%%   \\
+
+%%   $\of{\ofty}{\arr{\tmty}{\arr{\tpty}{\type}}}$ & & \\  
+
+%%   $\of{\eqty}{\arr{\tpty}{\arr{\tpty}{\type}}}$ & &
+%%     $\of{\refltm}{\typedpi{T}{\tpty}{\eqty\app T\app T}}$
+%% \end{tabular}
+%% \caption{An LF Specification for the Simply-Typed Lambda Calculus}
+%% \label{fig:stlc-term-spec}
+%% \end{figure*}
 
 A key use of LF is in formalizing systems that are described 
 through relations between objects that are specified through a
@@ -895,7 +943,7 @@ to being of the form
 \noindent In completing the argument, we would need to use properties of LF
 derivability.
 %
-A property that would be essential in this case is the finiteness of
+An important property in this case is the finiteness of
 LF derivations, which enables us to use an inductive argument.
 
 The objective in this paper is to provide a formal mechanism for
