@@ -96,7 +96,7 @@ Principles and Practice of Declarative Programming}{September 20--22,
 %% The "title" command has an optional parameter,
 %% allowing the author to define a "short title" to be used in page headers.
 
-\title{A Logic for Reasoning about Derivability in LF}
+\title{A Logic for Formalizing Properties of LF Specifications}
 
 %%
 %% The "author" command and its associated commands are used to define
@@ -154,8 +154,8 @@ Principles and Practice of Declarative Programming}{September 20--22,
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-A logic is presented for reasoning about specifications encoded in the
-Edinburgh Logical Framework or LF. In this logic, typing judgments in
+A logic is presented for formalizing properties of specifications in
+the Edinburgh Logical Framework or LF. In this logic, typing judgments in
 LF serve as atomic formulas and quantification is permitted over LF
 terms and LF contexts. Quantifiers of the first variety are qualified
 by simple types that describe the functional structure associated with
@@ -164,15 +164,14 @@ context schemas that constrain their instantiations to adhere to a
 regular structure. The semantics of the logic is based ultimately on
 an understanding of derivability in LF. As such, valid formulas in the
 logic represent meta-theoretic properties of object systems that are
-encoded via LF signatures. The logic is complemented by a collection
-of proof rules that are sound with respect to the semantics. These
-rules come in two forms. One collection of rules captures the meanings
+encoded via LF signatures. The logic is complemented by a proof system
+that is briefly discussed. There are two categories to the rules in
+this proof system. One collection of rules captures the meanings
 of logical connectives and quantifiers. Another collection provides
 a means for analyzing atomic formulas based on an understanding of
 derivability in LF; these rules build in the capability for a
 case-analysis style reasoning about LF judgements and for induction
-over the heights of LF derivations. The logic has been implemented in
-the Adelfa proof assistant.
+over the heights of LF derivations. 
 \end{abstract}
 
 %%
@@ -227,6 +226,7 @@ the Adelfa proof assistant.
 \input lf.tex
 \input logic.tex
 \input proofsystem.tex
+\input conclusion.tex
 
 \bibliographystyle{ACM-Reference-Format}
 %\bibliography{../../references/master}

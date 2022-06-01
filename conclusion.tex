@@ -1,0 +1,123 @@
+\section{Related Work and Conclusion}\label{sec:conclusion}
+
+We have presented a logic in this paper that provides
+a means for formalizing properties of LF specifications and have
+sketched a proof system that supports the mechanization of arguments
+of validity relative to it. 
+%
+While space does not permit the illustration of the proof
+system, such examples may be found in~\cite{nadathur21arxiv} and
+\cite{southern21phd}. 
+%
+In complementary work, we have implemented the proof system in a proof
+assistant called Adelfa~\cite{southern21phd,southern21lfmtp}. 
+
+There have been other efforts towards building a capability for
+reasoning about LF specifications albeit with significantly different
+philosophical underpinnings. 
+%
+One prominent approach is that reflected in what might be called the
+``Twelf family'' of systems.
+%
+The first realization of this approach is the Twelf system
+itself~\cite{pfenning99cade}. 
+%
+This system uses LF once again to formalize properties of systems
+described in it.
+%
+More specifically, the properties that are of interest are described
+by other LF types that have a functional structure, identified by mode
+declarations. 
+%
+The validity of these properties is then demonstrated by constructing
+inhabitants of the ``output'' types for every possible value for the
+``input'' types.
+%
+This approach has achieved much success even though it requires
+properties that need to be established to be transformed into formulas
+that have a $\forall\exists$ quantifier structure.
+%
+A drawback of the approach is that is that there isn't an
+explicit proof to be extracted at the end of a development.
+%
+The logic $M_2^+$ has been enunciated towards mitigating this
+issue~\cite{schurmann00phd}, and it appears possible to mechanically 
+relate the ``reasoning'' embodied in a Twelf development to a proof in
+this logic~\cite{wang13lfmtp}.
+%
+While some of the proof rules in $M_2^+$ bear a resemblance to the
+ones in the proof system for \logic, there are significant differences
+in the specifics of, for example, the treatment of case analysis and
+induction.
+
+Unlike \logic, the Twelf system and the $M_2^+$ logic do not
+provide an explicit means for quantifying over contexts. It is
+possible to parameterize a development by a context description, but
+it is one fixed context that then permeates the development.
+%
+As an example, it is not possible to express the strengthening lemma 
+pertaining to the equality of types in the STLC that we discussed in
+Section~\ref{ssec:logic-examples}.
+%
+The Beluga system~\cite{pientka10ijcar} alleviates this problem by using
+a richer version of type theory that allows for an explicit treatment
+of contexts as its basis~\cite{nanevski08tocl}.
+%
+Beluga is based on a computational view of reasoning that is similar
+in many respects to the philosophy underlying Twelf: one writes
+dependently-typed recursive functions and the type system ensures that
+the admitted 
+functions are ones that are total and hence embody ``proofs'' of the
+properties expressed by the types. 
+%
+This system is more expressive than Twelf, but the structure of the
+formulas that encode properties is similarly limited. 
+%
+A recent development that appears related to this line of work is that
+of {\sc Cocon}, a Martin-L\"{o}f style type theory that embeds LF within
+a rich dependently typed calculus that supports
+recursion~\cite{pientka2019arxiv}. 
+%
+It would be interesting to compare the reasoning capabilities that
+result from this kind of a combination with what is possible to
+achieve with an approach like ours.
+%
+We hope to explore this issue in future work.
+
+Another approach that has been explored for reasoning about LF
+specifications is based on their translation to a predicate logic
+form.
+%
+A particular exemplar of this approach is one that translates LF
+specifications into specifications in the logic of hereditary Harrop 
+formulas~\cite{miller12proghol}, to then be reasoned about using the
+Abella system~\cite{southern14fsttcs}.
+% 
+This approach has the virtue that benefit can be derived from any of
+the (generic) reasoning capabilities that have been developed for the
+host system. 
+%
+In the mentioned example, several such advantages are derived from the
+expressiveness of the logic underlying Abella~\cite{gacek11ic}: 
+it is possible to define relations between contexts, to treat
+binding notions explicitly in the reasoning process through the
+$\nabla$-quantifier, and to use inductive (and co-inductive)
+definitions in the reasoning logic.
+%
+There are, however, some drawbacks to the translation-based
+approach. 
+%
+Perhaps the most significant problem is that the proof steps that can
+be taken under it are determined by the logic of the host system, and
+this may allow for more possibilities than are sensible in the LF
+context.  
+%
+One way to overcome this difficulty is to design macro proof steps
+that capture the natural process of reasoning about LF
+specifications. 
+%
+In this respect, one important outcome of the work that we have
+described here, especially for the structure that we have developed
+for case analysis, might be an understanding of how one might
+build within proof assistants such as Abella a targeted
+capability for reasoning about LF specifications. 
