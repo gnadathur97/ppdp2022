@@ -823,20 +823,11 @@ in the logic.
 Moreover, the corresponding formula will be valid exactly when the
 typing judgement is derivable in LF.
 %
-Thus, the formulas
-$\fatm{\emptyce}{\emptytm : \tmty}$,
-$\fatm{\emptyce}{(\lamtm\app \unittm\app (\lflam{x}{x})) : \tmty}$ and
-$\fatm{n : \tmty}{n:\tmty}$ are all valid. 
-  %
-Similarly, the formulas
+Thus, the formulas $\fatm{n : \tmty}{n:\tmty}$,
+$\fatm{\emptyce}{(\lamtm\app \unittm\app (\lflam{x}{x})) : \tmty}$, and
 $\fexists{d:\oty}{\fatm{\emptyce}{d : (\ofty \app \emptytm\app
-    \unittm)}}$ and
-\begin{tabbing}
-\qquad\=\kill
-\>$\fexists{d:\oty}{\fatm{\emptyce}{d :\ofty \app (\lamtm \app \unittm\app
-    (\lflam{x}{x}))\app (\arrtm\app \unittm\app \unittm)}}$
-\end{tabbing}
-are valid but the formula
+    \unittm)}}$
+are valid, but the formula
 $\fexists{d:\oty}{\fatm{\emptyce}{d:\ofty \app
     (\lamtm \app \unittm\app (\lflam{x}{x}))\app \unittm}}$
 is not.
